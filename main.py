@@ -10,17 +10,16 @@ from colorama import Fore, Back, Style
 import re
 
 _ = [
-    ("TEXT", r"[A-Za-z\d_]+"), # Potential identifiers
-    ("ESCAPED_CHAR", r'\\(?:\n|.)'),
-    ("DOUBLE_PIPE", "\|\|"),
-    ("PIPE", "\|"),
-    ("BRACE_OPEN", "{"),
-    ("BRACE_CLOSED", "}"),
-    ("NEWLINE", r"\n"),
-    ("WHITESPACE", r"\s+"),
-    ("TEXT", r"\S+"),
+    ("TEXT", r'\\(\n|.)'), # Escaped char.
+    ("DOUBLE_PIPE", "(\|\|)"),
+    ("PIPE", "(\|)"),
+    ("BRACE_OPEN", "({)"),
+    ("BRACE_CLOSED", "(})"),
+    ("NEWLINE", r"(\n)"),
+    ("WHITESPACE", r"(\s+)"),
+    ("TEXT", r"(\S)"),
 ]
-TOKENS = [(t[0],re.compile(f"({t[1]})")) for t in _]
+TOKENS = [(t[0],re.compile(t[1])) for t in _]
 
 
 @dataclass
@@ -30,11 +29,6 @@ class Token:
     line: int = 0
     column: int = 0
     char_index: int = 0
-
-    def escape_value(self) -> str:
-        if self.type_ == "ESCAPED_CHAR":
-            return self.value[1:]
-        return self.value
 
 
 def tokenize(text) -> List[Token]:
@@ -47,7 +41,7 @@ def tokenize(text) -> List[Token]:
             match = pattern.match(text, pos=char_index)
 
             if match is not None:
-                value = match.group()
+                value = match.group(1)
                 char_index = match.end()
                 return Token(type_, value, line, column, char_index)
 
@@ -101,6 +95,7 @@ def t_print(tokens: Sequence[Token], show_key=False) -> None:
         else:
             color = color_map[token.type_]
         print(color + token.value + Style.RESET_ALL, end="")
+    print()
 
 
 class ParseError(Exception):
@@ -135,15 +130,12 @@ class Parser:
             raise ParseError
 
     def parse_text(self):
-        tokens: List[Token] = []
         text = ""
-
         while True:
-            text += self.consume("TEXT").escape_value()
-            if not self.peek("TEXT"):
+            text += self.consume("ANY").value
+            if not self.peek("WHITESPACE") and not self.peek("TEXT"):
                 break
-        return text
-
+        return text.strip()
 
     def parse(self):
         while self.index < len(self.tokens) - 1:
@@ -155,7 +147,7 @@ class Parser:
 
 
 
-tokens = tokenize("{is || a} test! | treat me like disease")
+tokens = tokenize("{is || a} test! \| tr\eat | me like disease")
 
 t_print(tokens)
 
