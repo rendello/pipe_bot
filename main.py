@@ -112,8 +112,10 @@ class Parser:
         self.index = 0  # The only shared mutable state
 
     def peek(self, expected_type, pos=0) -> bool:
-        if expected_type == "ANY":
-            return (self.index + pos) < len(self.tokens) - 1
+        if self.index + pos > len(self.tokens) - 1:  # (out of range.)
+            return False
+        elif expected_type == "ANY":
+            return True
         else:
             assert any(expected_type in t for t in TOKENS), "expected_type doesn't exist."
             return self.tokens[self.index + pos].type_ == expected_type
@@ -132,11 +134,24 @@ class Parser:
                     print(f"{color}{token.value}{Style.RESET_ALL}", end="")
             raise ParseError
 
+    def parse_text(self):
+        tokens: List[Token] = []
+        text = ""
+
+        while True:
+            text += self.consume("TEXT").escape_value()
+            if not self.peek("TEXT"):
+                break
+        return text
+
+
     def parse(self):
         while self.index < len(self.tokens) - 1:
+            if self.peek("TEXT"):
+                print(self.parse_text())
+
             if self.peek("ANY"):
                 token = self.consume("ANY")
-                
 
 
 
