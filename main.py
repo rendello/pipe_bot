@@ -138,12 +138,18 @@ class Parser:
         return text.strip()
 
     def parse(self):
-        while self.index < len(self.tokens) - 1:
+        text = ""
+        while True:
+            if self.peek("BRACE_CLOSED") or (self.index > len(self.tokens) - 1):
+                return text
             if self.peek("TEXT"):
-                print(self.parse_text())
+                text += self.parse_text()
+            elif self.peek("BRACE_OPEN"):
+                self.consume("BRACE_OPEN")
+                text += self.parse()
 
             if self.peek("ANY"):
-                token = self.consume("ANY")
+                self.consume("ANY")
 
 
 
@@ -152,4 +158,4 @@ tokens = tokenize("{is || a} test! \| tr\eat | me like disease")
 t_print(tokens)
 
 parser = Parser(tokens)
-parser.parse()
+print(parser.parse())
