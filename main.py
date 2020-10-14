@@ -11,7 +11,7 @@ import commands
 
 # [ Generate a regex with all command names ]
 command_aliases = [alias for tc in commands.text_commands for alias in tc['aliases']]  # type: ignore
-command_aliases_pattern = fr"({'|'.join(command_aliases)})\b"
+command_aliases_pattern = fr"\b({'|'.join(command_aliases)})\b"
 
 _ = [
     ("TEXT", r'\\(\n|.)'), # Escaped char.
@@ -78,8 +78,6 @@ def tokenize(text) -> List[Token]:
                 line_start = char_index
             column = char_index - line_start + 1
 
-    for token in tokens:
-        print(token)
     return tokens
 
 
@@ -118,7 +116,7 @@ class ParseError(Exception):
 @dataclass
 class Command:
     alias: str
-    arguments: str
+    arguments: List[str]
 
 
 class Parser:
@@ -165,32 +163,40 @@ class Parser:
 
     def parse_text(self):
         text = ""
-        while True:
+        while not self.peek(["WHITESPACE", "COMMA", "TEXT"]):
             text += self.consume("ANY").value
-            if not self.peek(["WHITESPACE", "COMMA", "TEXT"]):
-                break
         return text
 
-    def parse_arguments(self):
+    def parse_arguments(self) -> List[str]:
         args = []
-        while True:
-            arg_text = ""
-            while self.peek("TEXT"):
-                arg_text += self.consume("TEXT").value
-            args.append(arg_text)
 
-            if not self.peek("COMMA"):
+        while True:
+            args.append(self.consume("TEXT").value)
+            self.consume_if_exists("WHITESPACE")
+            if self.peek("COMMA"):
+                self.consume("COMMA")
+                self.consume_if_exists("WHITESPACE")
+            else:
                 break
         return args
 
     def parse_commands(self):
         commands: List[Command] = []
 
-        self.consume("PIPE")
-        self.consume_if_exists("WHITESPACE")
-        self.consume("COMMAND")
-        self.consume_if_exists("WHITESPACE")
-        if self.peek("TEXT")
+        while True:
+            command = Command(alias="", arguments=[])
+            self.consume("PIPE")
+            self.consume_if_exists("WHITESPACE")
+            command.alias = self.consume("COMMAND").value
+            self.consume_if_exists("WHITESPACE")
+            if self.peek("TEXT"):
+                command.args = self.parse_arguments()
+            commands.append(command)
+
+            self.consume_if_exists("WHITESPACE")
+            if not self.peek("PIPE"):
+                break
+        return commands
 
     def parse(self):
         text = ""
@@ -199,6 +205,8 @@ class Parser:
                 return text
             if self.peek("TEXT"):
                 text += self.parse_text()
+            elif self.peek("PIPE"):
+                print(self.parse_commands())
             elif self.peek("BRACE_OPEN"):
                 self.consume("BRACE_OPEN")
                 text += self.parse()
@@ -208,9 +216,9 @@ class Parser:
 
 
 
-tokens = tokenize("Hell\o cruel{ world, {I am Gaven | redact} and I see you | zalgo | caps")
+tokens = tokenize("Hell\o cruel{ world, {I am \ Gaven | redact bold, bolder } and I see you | zalgo bold | caps")
 
-t_print(tokens)
+t_print(tokens, True)
 
 parser = Parser(tokens)
 print(parser.parse())
