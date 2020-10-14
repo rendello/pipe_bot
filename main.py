@@ -1,17 +1,21 @@
-#!/usr/bin/python3.7
+#!/usr/bin/python3.8
 
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import List, Tuple, Sequence, Optional, Union
 
+import re
 from colorama import Fore, Back, Style
 
-import re
+import commands
+
+command_aliases = [alias for tc in commands.text_commands for alias in tc['aliases']]
+command_aliases_pattern = fr"\|\s*({'|'.join(command_aliases)})\b"
+print(command_aliases_pattern)
 
 _ = [
     ("TEXT", r'\\(\n|.)'), # Escaped char.
-    ("DOUBLE_PIPE", "(\|\|)"),
+    ("COMMAND", command_aliases_pattern),
     ("PIPE", "(\|)"),
     ("BRACE_OPEN", "({)"),
     ("BRACE_CLOSED", "(})"),
@@ -135,7 +139,7 @@ class Parser:
             text += self.consume("ANY").value
             if not self.peek("WHITESPACE") and not self.peek("TEXT"):
                 break
-        return text.strip()
+        return text
 
     def parse(self):
         text = ""
@@ -153,7 +157,7 @@ class Parser:
 
 
 
-tokens = tokenize("{is || a} test! \| tr\eat | me like disease")
+tokens = tokenize("{is | a} test! \| tr\eat | zalgo me like zalgo disease |full\|full")
 
 t_print(tokens)
 
