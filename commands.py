@@ -2,6 +2,17 @@
 
 import command_funcs as cf
 
+# Many commands produce text that can't be capitalized by the regular functions,
+# especially Unicode characters that look like regular Latin but are not.
+# As such, commands are given a "buoyancy". Commands that change a text's case
+# will silently sink down below commands that can not be capitalized on their own.
+#
+# ie. "upper → blackletter → mock" will silently become "upper →  mock → blackletter"
+#
+# -1 : Changes capitalization.
+#  0 : Does not interact badly with capitalization.
+#  1 : Interacts badly with capitalization.
+
 text_commands = [
     {
         "aliases": ["caps", "uppercase", "upper"],
