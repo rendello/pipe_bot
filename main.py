@@ -119,6 +119,17 @@ class Command:
     arguments: List[str]
 
 
+@dataclass
+class Group:
+    """ An AST node.
+    Text and groups are stored in order. Groups will be processed in the
+    generation stage and combined with the text. The commands will be run in
+    order* on the entire unified text (*command order will be re-arranged
+    somewhat, see "buoyancy" comment in commands.py).
+    """
+    content: List[Union[str,Group]]
+    commands: List[Command]
+
 class Parser:
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
@@ -161,24 +172,25 @@ class Parser:
             return self.consume(expected_type)
         return None
 
-    def parse_text(self):
+    def parse_text(self) -> str:
         text = ""
-        while not self.peek(["WHITESPACE", "COMMA", "TEXT"]):
+        while self.peek(["WHITESPACE", "COMMA", "TEXT"]):
             text += self.consume("ANY").value
+        print(text)
         return text
 
     def parse_arguments(self) -> List[str]:
-        args = []
+        arguments = []
 
         while True:
-            args.append(self.consume("TEXT").value)
+            arguments.append(self.consume("TEXT").value)
             self.consume_if_exists("WHITESPACE")
             if self.peek("COMMA"):
                 self.consume("COMMA")
                 self.consume_if_exists("WHITESPACE")
             else:
                 break
-        return args
+        return arguments
 
     def parse_commands(self):
         commands: List[Command] = []
@@ -190,34 +202,40 @@ class Parser:
             command.alias = self.consume("COMMAND").value
             self.consume_if_exists("WHITESPACE")
             if self.peek("TEXT"):
-                command.args = self.parse_arguments()
+                command.arguments = self.parse_arguments()
             commands.append(command)
 
             self.consume_if_exists("WHITESPACE")
             if not self.peek("PIPE"):
                 break
+
         return commands
 
-    def parse(self):
-        text = ""
-        while True:
-            if self.peek("BRACE_CLOSED") or (self.index > len(self.tokens) - 1):
-                return text
+    def parse(self) -> Group:
+        content: List[Union[Command,str]] = []
+        commands: List[Command] = []
+        #while not self.peek("BRACE_CLOSED") and (self.index < len(self.tokens) - 1):
+        while (self.index < len(self.tokens) - 1):
+
+            self.consume_if_exists("WHITESPACE")
+
             if self.peek("TEXT"):
-                text += self.parse_text()
+                content.append(self.parse_text())
             elif self.peek("PIPE"):
-                print(self.parse_commands())
+                commands = self.parse_commands()
+                self.consume_if_exists("BRACE_CLOSED")
+                break;
             elif self.peek("BRACE_OPEN"):
                 self.consume("BRACE_OPEN")
-                text += self.parse()
+                content.append(self.parse())
 
-            if self.peek("ANY"):
-                self.consume("ANY")
-
+        return Group(content, commands)
 
 
-tokens = tokenize("Hell\o cruel{ world, {I am \ Gaven | redact bold, bolder } and I see you | zalgo bold | caps")
 
+#tokens = tokenize("Hell\o cruel world, {I am \ {Gaven | zalgo orange} | redact bold, bolder} and I see you | zalgo bold | caps")
+#tokens = tokenize("Hello, I'm {Gaven | zalgo caps} | french")
+tokens = tokenize("I'm {named {the great | mock} Gaven | zalgo bold | lower} yo")
 t_print(tokens, True)
 
 parser = Parser(tokens)
