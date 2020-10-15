@@ -10,7 +10,7 @@ import command_funcs as cf
 # ie. "upper → blackletter → mock" will silently become "upper →  mock → blackletter"
 #
 # -1 : Changes capitalization.
-#  0 : Does not interact badly with capitalization.
+#  0 : Interacts well with capitalization.
 #  1 : Interacts badly with capitalization.
 
 text_commands = [
