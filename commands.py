@@ -2,6 +2,7 @@
 
 import command_funcs as cf
 
+# ========== Note on "bouyancy" ==========
 # Many commands produce text that can't be capitalized by the regular functions,
 # especially Unicode characters that look like regular Latin but are not.
 # As such, commands are given a "buoyancy". Commands that change a text's case

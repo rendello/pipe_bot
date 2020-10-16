@@ -111,6 +111,7 @@ def t_print(tokens: Sequence[Token], show_key=False) -> None:
 
 
 # ====== PARSER ======
+
 class ParseError(Exception):
     pass
 
@@ -245,6 +246,6 @@ def toAST(text) -> ASTResult:
 
 
 if __name__ == "__main__":
-    tokens = tokenize("Hello, I'm {Gaven | zalgo | caps} | zalgo")
+    tokens = tokenize("Hello, I'm {me | zalgo | caps} | zalgo")
     parser = Parser(tokens)
     print(parser.parse())
