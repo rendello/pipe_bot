@@ -20,6 +20,9 @@ def generate(group: Group) -> str:
         # Group's only content is a single string, it's the deepest node on that
         # branch and can be processed.
 
+        if group.content == []:
+            return str()
+
         new_group = copy(group)
         for i, c in enumerate(group.content):
             if isinstance(c, Group):
@@ -51,3 +54,5 @@ if __name__ == "__main__":
     print(process_text("{Hello} jello|zalgo"))
     print(process_text("{jello|zalgo} h|mock"))
     print(process_text("{jello} h|mock|zalgo"))
+    print(process_text(""))
+    print(process_text("{}"))

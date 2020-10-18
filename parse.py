@@ -46,16 +46,18 @@ class LexError(PBError):
 
 
 def token_verify(tokens: List[Token]):
-    brace_open_count = 0
-    brace_closed_count = 0
+    brace_value = 0
 
     for token in tokens:
         if token.type_ == "BRACE_OPEN":
-            brace_open_count += 1
+            brace_value += 1
         elif token.type_ == "BRACE_CLOSED":
-            brace_closed_count += 1
+            brace_value -= 1
 
-    if brace_open_count != brace_closed_count:
+        if brace_value < 0:
+            raise LexError("Unbalanced curly braces.")
+
+    if brace_value != 0:
         raise LexError("Unbalanced curly braces.")
 
 
@@ -262,7 +264,6 @@ class Parser:
         while (self.index < len(self.tokens)):
             if self.peek("PIPE"):
                 commands = self.parse_commands()
-                #break;
             elif self.peek("BRACE_OPEN"):
                 self.consume("BRACE_OPEN")
                 content.append(self.parse())
