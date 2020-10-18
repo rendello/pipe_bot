@@ -84,14 +84,14 @@ def clap(text):
 
     # empty split() splits on *any* whitespace
     words = text.split()
-    clappy_text = " 👏 ".join(words).upper()
+    clappy_text = " 👏 ".join(words)
 
     return clappy_text
 
 
 def mock(text):
     """ Alternates between upper and lower case randomly. Sequences of 3+ do
-    not occur.  """
+    not occur. """
 
     new_text = ""
 
@@ -124,10 +124,11 @@ def anagram(text):
 
 def zalgo(text):
     def apply_diacritic(char):
+        if char.isspace():
+            return char
 
         # Chars in "Combining Diacritical Marks" Unicode block.
         combining_chars = [chr(n) for n in range(768, 878)]
-
         combining_char = random.choice(combining_chars)
         return char + combining_char
 

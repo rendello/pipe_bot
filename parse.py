@@ -37,6 +37,28 @@ class Token:
     char_index: int = 0
 
 
+class PBError(Exception):
+    pass
+
+
+class LexError(PBError):
+    pass
+
+
+def token_verify(tokens: List[Token]):
+    brace_open_count = 0
+    brace_closed_count = 0
+
+    for token in tokens:
+        if token.type_ == "BRACE_OPEN":
+            brace_open_count += 1
+        elif token.type_ == "BRACE_CLOSED":
+            brace_closed_count += 1
+
+    if brace_open_count != brace_closed_count:
+        raise LexError("Unbalanced curly braces.")
+
+
 def tokenize(text) -> List[Token]:
     """ Tokenizes text. """
 
@@ -79,6 +101,7 @@ def tokenize(text) -> List[Token]:
                 line_start = char_index
             column = char_index - line_start + 1
 
+    token_verify(tokens)
     return tokens
 
 
@@ -112,7 +135,7 @@ def t_print(tokens: Sequence[Token], show_key=False) -> None:
 
 # ====== PARSER ======
 
-class ParseError(Exception):
+class ParseError(PBError):
     pass
 
 
@@ -135,11 +158,19 @@ class Group:
 
 
 @dataclass
+class Info:
+    """ An informative message to be sent along with the transformed text.
+    If `is_supplemental` is set, info is to be shown only in verbose mode.
+    """
+    type_: str  # can be INFO, ERROR
+    message: str
+    is_supplemental: bool
+
+
+@dataclass
 class ASTResult:
     AST: Group
-    info: List[str]
-    lex_errors: List[str]
-    parse_errors: List[str]
+    info: List[Info]
 
 
 class Parser:
@@ -176,7 +207,7 @@ class Parser:
                 if token.line == t.line:
                     color: str = Back.RED + Fore.YELLOW if token == t else ""
                     print(f"{color}{token.value}{Style.RESET_ALL}", end="")
-            raise ParseError("\n{t.line}, {t.column}: Expected {expected_type}, got {t.type_}")
+            raise ParseError(f"\n{t.line}, {t.column}: Expected {expected_type}, got {t.type_}")
 
     def consume_if_exists(self, expected_type: str) -> Optional[Token]:
         if self.peek(expected_type):
@@ -185,7 +216,7 @@ class Parser:
 
     def parse_text(self) -> str:
         text = ""
-        while self.peek(["WHITESPACE", "COMMA", "TEXT"]):
+        while self.peek("ANY") and not self.peek(["BRACE_OPEN", "BRACE_CLOSED", "PIPE"]):
             text += self.consume("ANY").value
         return text
 
@@ -224,25 +255,30 @@ class Parser:
     def parse(self) -> Group:
         content: List[Union[Command,str]] = []
         commands: List[Command] = []
-        while (self.index < len(self.tokens) - 1):
 
-            self.consume_if_exists("WHITESPACE")
+        if self.tokens == []:
+            return Group([""], [])
 
+        while (self.index < len(self.tokens)):
             if self.peek("PIPE"):
                 commands = self.parse_commands()
-                break;
+                #break;
             elif self.peek("BRACE_OPEN"):
                 self.consume("BRACE_OPEN")
                 content.append(self.parse())
+            elif self.peek("BRACE_CLOSED"):
+                self.consume("BRACE_CLOSED")
+                break
             elif self.peek("ANY"):
                 content.append(self.parse_text())
 
-        self.consume_if_exists("BRACE_CLOSED")
+
         return Group(content, commands)
 
 
 def toAST(text) -> ASTResult:
-    return Parser(tokenize(text)).parse()
+    tokens = tokenize(text)
+    return Parser(tokens).parse()
 
 
 if __name__ == "__main__":
