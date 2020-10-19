@@ -1,18 +1,29 @@
 #!/usr/bin/python3.8
 
 from __future__ import annotations
+# ^ Allows classes to contain themselves
+
 from dataclasses import dataclass
 from typing import List, Tuple, Sequence, Optional, Union
-
+from copy import copy
 import re
+
 from colorama import Fore, Back, Style
 
 import commands
 
-# (Generates a regex with all command names.)
+# A mapping of aliases to their respective commands in commands.py. One
+# commands carries multiple aliases.
+bot_commands = {}
+for tc in commands.text_commands:
+    for alias in tc["aliases"]:
+        bot_commands[alias] = tc["command"]
+
+
+# A list of tokens is created with patterns to match on. All command aliases
+# are combined into a big regex to match on.
 command_aliases = [alias for tc in commands.text_commands for alias in tc['aliases']]  # type: ignore
 command_aliases_pattern = fr"\b({'|'.join(command_aliases)})\b"
-
 _ = [
     ("TEXT", r'\\(\n|.)'), # Escaped char.
     ("PIPE", "(\|)"),
@@ -152,27 +163,10 @@ class Group:
     """ An AST node.
     Text and groups are stored in order. Groups will be processed in the
     generation stage and combined with the text. The commands will be run in
-    order* on the entire unified text (*command order will be re-arranged
-    somewhat, see "buoyancy" comment in commands.py).
+    order on the entire unified text.
     """
     content: List[Union[str,Group]]
     commands: List[Command]
-
-
-@dataclass
-class Info:
-    """ An informative message to be sent along with the transformed text.
-    If `is_supplemental` is set, info is to be shown only in verbose mode.
-    """
-    type_: str  # can be INFO, ERROR
-    message: str
-    is_supplemental: bool
-
-
-@dataclass
-class ASTResult:
-    AST: Group
-    info: List[Info]
 
 
 class Parser:
@@ -280,6 +274,39 @@ class Parser:
 def toAST(text) -> ASTResult:
     tokens = tokenize(text)
     return Parser(tokens).parse()
+
+
+# ====== GENERATOR ======
+
+def generate(group: Group) -> str:
+    """ Recursively generates text from the AST. """
+
+    while True:
+        # The `content` of a Group is a mixed list of strings and Groups. If a
+        # Group's only content is a single string, it's the deepest node on that
+        # branch and can be processed.
+
+        if group.content == []:
+            return str()
+
+        new_group = copy(group)
+        for i, c in enumerate(group.content):
+            if isinstance(c, Group):
+                new_group.content[i] = generate(c)
+
+                # (Combine all strings if no Groups are left)
+                if all(isinstance(item, str) for item in new_group.content):
+                    new_group.content = [str().join(new_group.content)]
+
+            elif len(group.content) == 1:  # (is lone str)
+                text = c
+                for command in group.commands:
+                    text = bot_commands[command.alias](text)
+                return text
+
+        group = new_group
+
+
 
 
 if __name__ == "__main__":
