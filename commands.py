@@ -2,18 +2,6 @@
 
 import command_funcs as cf
 
-# ========== Note on "bouyancy" ==========
-# Many commands produce text that can't be capitalized by the regular functions,
-# especially Unicode characters that look like regular Latin but are not.
-# As such, commands are given a "buoyancy". Commands that change a text's case
-# will silently sink down below commands that can not be capitalized on their own.
-#
-# ie. "upper → blackletter → mock" will silently become "upper →  mock → blackletter"
-#
-# -1 : Changes capitalization.
-#  0 : Interacts well with capitalization.
-#  1 : Interacts badly with capitalization.
-
 text_commands = [
     {
         "aliases": ["caps", "uppercase", "upper"],
@@ -153,5 +141,53 @@ text_commands = [
         "category": "cyber",
         "help": "Gets the binary of the text.",
         "examples": {"input": "", "output": "",},
+    },
+    {
+        "aliases": ["bold"],
+        "args": [],
+        "command": cf.bold,
+        "category": "markdown",
+        "help": "Embolden text through Discord's markdown.",
+        "examples": {"input": "Hello", "output": "**Hello**",},
+    },
+    {
+        "aliases": ["italic"],
+        "args": [],
+        "command": cf.italic,
+        "category": "markdown",
+        "help": "Italicize text through Discord's markdown.",
+        "examples": {"input": "Hello", "output": "*Hello*",},
+    },
+    {
+        "aliases": ["spoiler", "spoil", "spoilers", "spoilerz"],
+        "args": [],
+        "command": cf.spoiler,
+        "category": "markdown",
+        "help": "Puts spoiler tags around the text.",
+        "examples": {"input": "Clark Kent is Superman", "output": "||Clark Kent is Superman||",},
+    },
+    {
+        "aliases": ["code"],
+        "args": [],
+        "command": cf.code,
+        "category": "markdown",
+        "help": "Puts text in inline code tags.",
+        "examples": {"input": "I64 i = 0", "output": "`I64 i = 0`",},
+    },
+    {
+        "aliases": ["codeblock", "blockcode"],
+        "args": ["language"],
+        "command": cf.codeblock,
+        "category": "markdown",
+        "help": "Puts text in code block.",
+        "examples": {"input": "I64 i = 0;", "output": "```\nI64 i = 0\n```",},
+    },
+    {
+        "aliases": ["blockquote", "quote", "quotation"],
+        "args": [],
+        "command": cf.blockquote,
+        "category": "markdown",
+        "help": "Puts text in a blockquote.",
+        "examples": {"input": "Hello", "output": "> Hello",},
     },
 ]

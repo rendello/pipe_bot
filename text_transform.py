@@ -296,7 +296,7 @@ def generate(group: Group) -> str:
             elif len(group.content) == 1:  # (is lone str)
                 text = c
                 for command in group.commands:
-                    text = bot_commands[command.alias](text)
+                    text = bot_commands[command.alias](text, command.arguments)
                 return text
 
         group = new_group
