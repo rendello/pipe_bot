@@ -1,12 +1,6 @@
 #!/usr/bin/python3.8
 
-from parse import toAST, Group, generate
-
-
-def process_text(text: str):
-    AST = toAST(text)
-    return generate(AST)
-
+from text_transform import process_text
 
 if __name__ == "__main__":
     print(process_text("Hello, {world! | zalgo | mock}, it's me {yeetus|redact}| vapor"))
@@ -18,3 +12,4 @@ if __name__ == "__main__":
     print(process_text("{jello} h|mock|zalgo"))
     print(process_text(""))
     print(process_text("{}"))
+    print(process_text("}{"))

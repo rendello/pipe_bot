@@ -12,6 +12,8 @@ from colorama import Fore, Back, Style
 
 import commands
 
+# ====== GLOBAL STUFF ======
+
 # A mapping of aliases to their respective commands in commands.py. One
 # commands carries multiple aliases.
 bot_commands = {}
@@ -38,6 +40,11 @@ _ = [
 TOKENS = [(t[0],re.compile(t[1])) for t in _]
 
 
+# ====== EXCEPTIONS ======
+class PipeBotError(Exception):
+    pass
+
+
 # ====== TOKENIZER ======
 @dataclass
 class Token:
@@ -46,14 +53,6 @@ class Token:
     line: int = 0
     column: int = 0
     char_index: int = 0
-
-
-class PBError(Exception):
-    pass
-
-
-class LexError(PBError):
-    pass
 
 
 def token_verify(tokens: List[Token]):
@@ -66,10 +65,10 @@ def token_verify(tokens: List[Token]):
             brace_value -= 1
 
         if brace_value < 0:
-            raise LexError("Unbalanced curly braces.")
+            raise PipeBotError("Unbalanced curly braces.")
 
     if brace_value != 0:
-        raise LexError("Unbalanced curly braces.")
+        raise PipeBotError("Unbalanced curly braces.")
 
 
 def tokenize(text) -> List[Token]:
@@ -148,10 +147,6 @@ def t_print(tokens: Sequence[Token], show_key=False) -> None:
 
 # ====== PARSER ======
 
-class ParseError(PBError):
-    pass
-
-
 @dataclass
 class Command:
     alias: str
@@ -203,7 +198,7 @@ class Parser:
                 if token.line == t.line:
                     color: str = Back.RED + Fore.YELLOW if token == t else ""
                     print(f"{color}{token.value}{Style.RESET_ALL}", end="")
-            raise ParseError(f"\n{t.line}, {t.column}: Expected {expected_type}, got {t.type_}")
+            raise PipeBotError(f"\n{t.line}, {t.column}: Expected {expected_type}, got {t.type_}")
 
     def consume_if_exists(self, expected_type: str) -> Optional[Token]:
         if self.peek(expected_type):
@@ -271,7 +266,7 @@ class Parser:
         return Group(content, commands)
 
 
-def toAST(text) -> ASTResult:
+def toAST(text) -> str:
     tokens = tokenize(text)
     return Parser(tokens).parse()
 
@@ -307,6 +302,13 @@ def generate(group: Group) -> str:
         group = new_group
 
 
+def process_text(text: str) -> str:
+    try:
+        AST = toAST(text)
+        res = generate(AST)
+        return res
+    except PipeBotError as e:
+        return f"`ERROR: {e}`"
 
 
 if __name__ == "__main__":
