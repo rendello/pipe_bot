@@ -309,9 +309,3 @@ def process_text(text: str) -> str:
         return res
     except PipeBotError as e:
         return f"`ERROR: {e}`"
-
-
-if __name__ == "__main__":
-    tokens = tokenize("Hello, I'm {me | zalgo | caps} | zalgo")
-    parser = Parser(tokens)
-    print(parser.parse())
