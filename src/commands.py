@@ -2,11 +2,13 @@
 
 import command_funcs as cf
 
+# See end of file for useful variables related to commands.
+
 text_commands = [
     {
         "aliases": ["caps", "uppercase", "upper"],
         "args": [],
-        "command": cf.uppercase,
+        "callback": cf.uppercase,
         "category": "basic",
         "help": "Uppercases text.",
         "example": {
@@ -17,7 +19,7 @@ text_commands = [
     {
         "aliases": ["lowercase", "lower"],
         "args": [],
-        "command": cf.lowercase,
+        "callback": cf.lowercase,
         "category": "basic",
         "help": "Lowercases text.",
         "example": {
@@ -28,7 +30,7 @@ text_commands = [
     {
         "aliases": ["swapcase", "swap case", "swap"],
         "args": [],
-        "command": cf.swapcase,
+        "callback": cf.swapcase,
         "category": "basic",
         "help": "Swaps the case of the text. Also see `mock`.",
         "example": {
@@ -39,7 +41,7 @@ text_commands = [
     {
         "aliases": ["clap", "clapback"],
         "args": ["emoji"],
-        "command": cf.clap,
+        "callback": cf.clap,
         "category": "misc",
         "help": "Uppercases text and separates words with clapping emojis.",
         "example": {
@@ -50,7 +52,7 @@ text_commands = [
     {
         "aliases": ["mock", "spongebob"],
         "args": [],
-        "command": cf.mock,
+        "callback": cf.mock,
         "category": "misc",
         "help": "Randomly upper- and lowercases letters in text.",
         "examples": {
@@ -61,7 +63,7 @@ text_commands = [
     {
         "aliases": ["zalgo", "spooky"],
         "args": [],
-        "command": cf.zalgo,
+        "callback": cf.zalgo,
         "category": "misc",
         "help": "Adds random combining characters to make text look crazy.",
         "examples": {"input": "todo", "output": "todo",},
@@ -69,7 +71,7 @@ text_commands = [
     {
         "aliases": ["anagram"],
         "args": [],
-        "command": cf.anagram,
+        "callback": cf.anagram,
         "category": "misc",
         "help": "Scrambles all characters in their respective words.",
         "examples": {"input": "todo", "output": "todo",},
@@ -77,7 +79,7 @@ text_commands = [
     {
         "aliases": ["redact", "censor", "expunge"],
         "args": [],
-        "command": cf.redact,
+        "callback": cf.redact,
         "category": "substitution",
         "help": "Replaces letters and numbers with a black block character.",
         "examples": {
@@ -88,7 +90,7 @@ text_commands = [
     {
         "aliases": ["vaporwave", "vapour", "vapor", "vapourwave", "fullwidth", "full"],
         "args": [],
-        "command": cf.vapourwave,
+        "callback": cf.vapourwave,
         "category": "substitution",
         "help": "Changes letters to their full-width equivalents.",
         "examples": {"input": "nice AESTHETICC | full", "output": "ｎｉｃｅ ＡＥＳＴＨＥＴＩＣＣ",},
@@ -96,7 +98,7 @@ text_commands = [
     {
         "aliases": ["leet", "haxxor", "hacker", "1337"],
         "args": [],
-        "command": cf.leet,
+        "callback": cf.leet,
         "category": "substitution",
         "help": "Changes letters to their leet equivalents.",
         "examples": {
@@ -107,7 +109,7 @@ text_commands = [
     {
         "aliases": ["blackletter", "gothic", "fraktur", "old"],
         "args": ["bold"],
-        "command": cf.light_blackletter,
+        "callback": cf.light_blackletter,
         "category": "substitution",
         "help": "Changes letters to their old-timey equivalents.",
         "examples": {
@@ -118,7 +120,7 @@ text_commands = [
     {
         "aliases": ["hash"],
         "args": ["type"],
-        "command": cf.md5,
+        "callback": cf.md5,
         "category": "cyber",
         "help": "Creates an MD5 hash from text.",
         "examples": {
@@ -129,7 +131,7 @@ text_commands = [
     {
         "aliases": ["hex", "hexidecimal"],
         "args": [],
-        "command": cf.hexidecimal,
+        "callback": cf.hexidecimal,
         "category": "cyber",
         "help": "Gets the hex of the text.",
         "examples": {"input": "", "output": "",},
@@ -137,7 +139,7 @@ text_commands = [
     {
         "aliases": ["bin", "binary"],
         "args": [],
-        "command": cf.binary,
+        "callback": cf.binary,
         "category": "cyber",
         "help": "Gets the binary of the text.",
         "examples": {"input": "", "output": "",},
@@ -145,7 +147,7 @@ text_commands = [
     {
         "aliases": ["bold"],
         "args": [],
-        "command": cf.bold,
+        "callback": cf.bold,
         "category": "markdown",
         "help": "Embolden text through Discord's markdown.",
         "examples": {"input": "Hello", "output": "**Hello**",},
@@ -153,7 +155,7 @@ text_commands = [
     {
         "aliases": ["italic"],
         "args": [],
-        "command": cf.italic,
+        "callback": cf.italic,
         "category": "markdown",
         "help": "Italicize text through Discord's markdown.",
         "examples": {"input": "Hello", "output": "*Hello*",},
@@ -161,7 +163,7 @@ text_commands = [
     {
         "aliases": ["spoiler", "spoil", "spoilers", "spoilerz"],
         "args": [],
-        "command": cf.spoiler,
+        "callback": cf.spoiler,
         "category": "markdown",
         "help": "Puts spoiler tags around the text.",
         "examples": {"input": "Clark Kent is Superman", "output": "||Clark Kent is Superman||",},
@@ -169,7 +171,7 @@ text_commands = [
     {
         "aliases": ["code"],
         "args": [],
-        "command": cf.code,
+        "callback": cf.code,
         "category": "markdown",
         "help": "Puts text in inline code tags.",
         "examples": {"input": "I64 i = 0", "output": "`I64 i = 0`",},
@@ -177,7 +179,7 @@ text_commands = [
     {
         "aliases": ["codeblock", "blockcode"],
         "args": ["language"],
-        "command": cf.codeblock,
+        "callback": cf.codeblock,
         "category": "markdown",
         "help": "Puts text in code block.",
         "examples": {"input": "I64 i = 0;", "output": "```\nI64 i = 0\n```",},
@@ -185,9 +187,21 @@ text_commands = [
     {
         "aliases": ["blockquote", "quote", "quotation"],
         "args": [],
-        "command": cf.blockquote,
+        "callback": cf.blockquote,
         "category": "markdown",
         "help": "Puts text in a blockquote.",
         "examples": {"input": "Hello", "output": "> Hello",},
     },
 ]
+
+
+# Map of aliases and respective command functions.
+alias_command_map = {alias: tc["callback"] for tc in text_commands for alias in tc['aliases']}
+
+# Aliases.
+all_aliases = [alias for tc in text_commands for alias in tc['aliases']]
+primary_aliases = [tc["aliases"][0] for tc in text_commands]
+
+# Useful regex patterns (not compiled).
+aliases_pattern = fr"\b({'|'.join(all_aliases)})\b"  # Matches "zalgo", "caps", etc.
+aliases_pattern_with_pipe = fr"\|\s*{aliases_pattern}"  # Matches "|zalgo", "| caps", etc.

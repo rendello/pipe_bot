@@ -14,18 +14,8 @@ import commands
 
 # ====== GLOBAL STUFF ======
 
-# A mapping of aliases to their respective commands in commands.py. One
-# commands carries multiple aliases.
-bot_commands = {}
-for tc in commands.text_commands:
-    for alias in tc["aliases"]:
-        bot_commands[alias] = tc["command"]
-
-
 # A list of tokens is created with patterns to match on. All command aliases
 # are combined into a big regex to match on.
-command_aliases = [alias for tc in commands.text_commands for alias in tc['aliases']]  # type: ignore
-command_aliases_pattern = fr"\b({'|'.join(command_aliases)})\b"
 _ = [
     ("TEXT", r'\\(\n|.)'), # Escaped char.
     ("PIPE", "(\|)"),
@@ -34,10 +24,10 @@ _ = [
     ("BRACE_CLOSED", "(})"),
     ("NEWLINE", r"(\n)"),
     ("WHITESPACE", r"(\s+)"),
-    ("COMMAND", command_aliases_pattern),
+    ("COMMAND", commands.aliases_pattern),
     ("TEXT", r"(\S)"),
 ]
-TOKENS = [(t[0],re.compile(t[1])) for t in _]
+TOKENS = [(t[0],re.compile(t[1], re.IGNORECASE)) for t in _]
 
 
 # ====== EXCEPTIONS ======
@@ -220,8 +210,10 @@ class Parser:
             if self.peek("COMMA"):
                 self.consume("COMMA")
                 self.consume_if_exists("WHITESPACE")
-            else:
+            elif self.peek("BRACE_CLOSED"):
                 break
+            else:
+                raise PipeBotError("Bad argument.")
         return arguments
 
     def parse_commands(self):
@@ -230,6 +222,9 @@ class Parser:
         while True:
             command = Command(alias="", arguments=[])
             self.consume("PIPE")
+            if not self.peek("ANY"):  # end of tokens
+                raise PipeBotError("Pipe character at the end of tokens.")
+
             self.consume_if_exists("WHITESPACE")
             command.alias = self.consume("COMMAND").value
             self.consume_if_exists("WHITESPACE")
@@ -296,7 +291,7 @@ def generate(group: Group) -> str:
             elif len(group.content) == 1:  # (is lone str)
                 text = c
                 for command in group.commands:
-                    text = bot_commands[command.alias](text, command.arguments)
+                    text = commands.alias_command_map[command.alias.lower()](text, command.arguments)
                 return text
 
         group = new_group
