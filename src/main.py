@@ -28,7 +28,7 @@ async def on_message(ctx):
 
     ##### Help message
     elif (
-        ctx.clean_content.lower().strip() in ["@pipebot", "@pipe|bot"]
+        ctx.clean_content.lower().strip() in ["@pipebot", "@pipe|bot"] # Helpful if nick changed.
         or client.user in ctx.mentions
     ):
         pass
