@@ -13,6 +13,7 @@ client = discord.Client()
 
 command_pattern = re.compile(commands.aliases_pattern_with_pipe)
 
+
 @client.event
 async def on_ready():
     pass
@@ -27,10 +28,10 @@ async def on_message(ctx):
 
     ##### Help message
     elif (
-        ctx.clean_content.lower().strip() in ["pipebot help", "pipe|bot help"]
+        ctx.clean_content.lower().strip() in ["@pipebot", "@pipe|bot"]
         or client.user in ctx.mentions
     ):
-        await ctx.channel.send(dir(ctx))
+        pass
 
     ##### Process pipe commands
     elif re.search(command_pattern, ctx.clean_content) is not None:

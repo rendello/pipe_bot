@@ -184,7 +184,7 @@ def hexidecimal(text, args):
 
 # broken: left zeros not preserved
 def binary(text, args):
-    h = hexidecimal(text)
+    h = hexidecimal(text, [])
     return bin(int(h, 16))[2:].zfill(8)
 
 
@@ -196,6 +196,10 @@ def bold(text, args):
 
 def italic(text, args):
     return f"*{text}*"
+
+
+def underline(text, args):
+    return f"__{text}__"
 
 
 def spoiler(text, args):

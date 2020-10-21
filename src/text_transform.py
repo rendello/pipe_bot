@@ -289,9 +289,9 @@ def generate(group: Group) -> str:
                     new_group.content = [str().join(new_group.content)]
 
             elif len(group.content) == 1:  # (is lone str)
-                text = c
+                text = c.strip()
                 for command in group.commands:
-                    text = commands.alias_command_map[command.alias.lower()](text, command.arguments)
+                    text = commands.alias_command_map[command.alias.lower()]["callback"](text, command.arguments)
                 return text
 
         group = new_group
