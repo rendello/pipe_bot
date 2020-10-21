@@ -19,24 +19,44 @@ This project is licensed under the Simplified BSD license. If modified and
 publicly re-released, I ask that you change the name to avoid confusion.
 
 A simple overview of the project files is as follows:
-### main.py
-The Discord bot itself. This is the file run to start the bot.
 
-### text\_transform.py
-The hand-written lexer, parser, and generator. The grand majority of the bot's
-functionality is implemented here.
+<table style="width:100%">
 
-### commands.py
-Data related to the bots commands, including aliases, descriptions, examples,
+<tr>
+<th>Source file</th>
+<th>Function</th>
+</tr>
+
+<tr>
+<td><code>main.py</code></td>
+<td>The Discord bot itself. This is the file run to start the bot.</td>
+</tr>
+
+<tr>
+<td><code>text_transform.py</code></td>
+<td>The hand-written lexer, parser, and generator. The grand majority of the bot's
+functionality is implemented here.</td>
+</tr>
+
+<tr>
+<td><code>commands.py</code></td>
+<td>Data related to the bots commands, including aliases, descriptions, examples,
 and the names of callbacks.
 
 The end of the file has useful data structures and regex patterns related to
-the commands.
+the commands.</td>
+</tr>
 
-### command\_funcs.py
-The callback functions for each command.
+<tr>
+<td><code>command_funcs.py</code></td>
+<td>The callback functions for each command.</td>
+</tr>
 
-### test.py
-Hypothesis and Pytest tests, mostly focusing on the lexing / parsing /
-generation stages.
+<tr>
+<td><code>test.py</code></td>
+<td>Hypothesis and Pytest tests, mostly focusing on the lexing / parsing /
+generation stages.</td>
+<tr>
+</table> 
+
 
