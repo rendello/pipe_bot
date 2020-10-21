@@ -205,15 +205,20 @@ class Parser:
         arguments = []
 
         while True:
-            arguments.append(self.consume("TEXT").value)
+            if self.peek(["TEXT", "COMMAND"]):
+                arguments.append(self.consume("ANY").value)
+
             self.consume_if_exists("WHITESPACE")
             if self.peek("COMMA"):
                 self.consume("COMMA")
                 self.consume_if_exists("WHITESPACE")
             elif self.peek("BRACE_CLOSED"):
                 break
-            else:
+            elif self.peek("ANY"):
                 raise PipeBotError("Bad argument.")
+            else:
+                # (End of tokens.)
+                break
         return arguments
 
     def parse_commands(self):
@@ -228,7 +233,7 @@ class Parser:
             self.consume_if_exists("WHITESPACE")
             command.alias = self.consume("COMMAND").value
             self.consume_if_exists("WHITESPACE")
-            if self.peek("TEXT"):
+            if self.peek(["TEXT", "COMMAND"]):
                 command.arguments = self.parse_arguments()
             commands.append(command)
 
