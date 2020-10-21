@@ -1,5 +1,6 @@
 #!/usr/bin/python3.8
 
+from typing import List
 import command_funcs as cf
 
 # See end of file for useful variables related to commands.
@@ -203,15 +204,15 @@ text_commands = [
 ]
 
 
-# Map of aliases and respective command functions.
-#alias_command_map = {alias: tc["callback"] for tc in text_commands for alias in tc['aliases']}
+# Map of aliases to their respective command dicts.
 alias_command_map = {alias: tc for tc in text_commands for alias in tc['aliases']}
 
 # Aliases.
-all_aliases = [alias for tc in text_commands for alias in tc['aliases']]
-primary_aliases = [tc["aliases"][0] for tc in text_commands]
+primary_aliases: List[str] = [tc["aliases"][0] for tc in text_commands]
+all_aliases: List[str] = [alias for tc in text_commands for alias in tc['aliases']]
 
-categories = [command["category"] for command in text_commands]
+# Unique categories in alphabetical order.
+categories: List[str] = sorted(set([command["category"] for command in text_commands]))
 
 # Useful regex patterns (not compiled).
 aliases_pattern = fr"\b({'|'.join(all_aliases)})\b"  # Matches "zalgo", "caps", etc.

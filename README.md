@@ -4,11 +4,15 @@
 together with pipes (`|`). It also supports arbritrary subgrouping with
 `{` and `}`.
 
+## Examples
+
 ## Installation
 The standard bot can be added to your server with the following link:
 
 I encourage any server owners to modify and self host the bot themselves, as
 the bot was built to be easily extensible.
+
+## Commands
 
 ## Modification and development
 This project is licensed under the Simplified BSD license. If modified and
