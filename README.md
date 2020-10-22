@@ -1,8 +1,10 @@
 ![Cover image](images/cover.png)
 
 `pipe|bot` is a Discord chatbot that allows you to chain multiple text commands
-together with pipes (`|`). It also supports arbritrary subgrouping with
-`{` and `}`.
+together with pipes. It also supports arbritrary subgrouping.
+
+## Usage
+Basic usage 
 
 ## Examples
 

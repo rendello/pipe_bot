@@ -6,19 +6,10 @@ import hashlib
 import re
 
 
-def uppercase(text, args):
-    return text.upper()
 
+##### Helper functions
 
-def lowercase(text, args):
-    return text.lower()
-
-
-def swapcase(text, args):
-    return text.swapcase()
-
-
-def char_translate(text, chars, mapped_chars):
+async def char_translate(text, chars, mapped_chars):
     translations = dict(zip(chars, mapped_chars))
 
     new_text = ""
@@ -31,28 +22,55 @@ def char_translate(text, chars, mapped_chars):
     return new_text
 
 
-def light_blackletter(text, args):
+async def get_hash(hash_type, text):
+    h = hashlib.new(hash_type)
+    h.update(text.encode())
+    return h.hexdigest()
+
+
+
+##### Callbacks
+# Every command callback should:
+#   - Be asyncronous
+#   - Accept two arguments:
+#     - Text to transform
+#     - List of argument strings (even if it doesn't use them)
+#   - Return transformed text
+
+async def uppercase(text, args):
+    return text.upper()
+
+
+async def lowercase(text, args):
+    return text.lower()
+
+
+async def swapcase(text, args):
+    return text.swapcase()
+
+
+async def light_blackletter(text, args):
     standard = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     blackletter = "𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷"
 
     return char_translate(text, standard, blackletter)
 
 
-def heavy_blackletter(text, args):
+async def heavy_blackletter(text, args):
     standard = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     blackletter = "𝕬𝕭𝕮𝕯𝕰𝕱𝕲𝕳𝕴𝕵𝕶𝕷𝕸𝕹𝕺𝕻𝕼𝕽𝕾𝕿𝖀𝖁𝖂𝖃𝖄𝖅𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟"
 
     return char_translate(text, standard, blackletter)
 
 
-def vapourwave(text, args):
+async def vapourwave(text, args):
     standard = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     full = "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ"
 
     return char_translate(text, standard, full)
 
 
-def leet(text, args):
+async def leet(text, args):
     standard = "aeoltbgzs"
     leet = "43017862$"
 
@@ -61,7 +79,7 @@ def leet(text, args):
     return new_text.upper()
 
 
-def redact(text, args):
+async def redact(text, args):
     new_text = ""
 
     if args != []:
@@ -78,14 +96,14 @@ def redact(text, args):
     return new_text
 
 
-#def bold(text, args):
+#async def bold(text, args):
 #    standard = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 #    bold = "𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳"
 #
 #    return char_translate(text, standard, bold)
 
 
-def clap(text, args):
+async def clap(text, args):
     """ Puts clap emojis between words. """
 
     if args != []:
@@ -93,14 +111,13 @@ def clap(text, args):
     else:
         clap_str = "👏"
 
-    # empty split() splits on *any* whitespace
     words = text.split()
     clappy_text = f" {clap_str} ".join(words)
 
     return clappy_text
 
 
-def mock(text, args):
+async def mock(text, args):
     """ Alternates between upper and lower case randomly. Sequences of 3+ do
     not occur. """
 
@@ -115,7 +132,7 @@ def mock(text, args):
     return new_text
 
 
-def anagram(text, args):
+async def anagram(text, args):
     words = text.split()
     new_text = ""
 
@@ -133,8 +150,8 @@ def anagram(text, args):
     return new_text
 
 
-def zalgo(text, args):
-    def apply_diacritic(char):
+async def zalgo(text, args):
+    async def apply_diacritic(char):
         if char.isspace():
             return char
 
@@ -150,13 +167,13 @@ def zalgo(text, args):
     for index, char in enumerate(text):
         if frequency >= 1:
             for i in range(0, math.floor(frequency)):
-                char = apply_diacritic(char)
+                char = await apply_diacritic(char)
         else:
             sum_of_frequencies += frequency
 
         if sum_of_frequencies >= 1:
             for i in range(0, math.floor(sum_of_frequencies)):
-                char = apply_diacritic(char)
+                char = await apply_diacritic(char)
             sum_of_frequencies = 0
 
         new_text += char
@@ -164,53 +181,47 @@ def zalgo(text, args):
     return new_text
 
 
-def get_hash(hash_type, text):
-    h = hashlib.new(hash_type)
-    h.update(text.encode())
-    return h.hexdigest()
-
-
-def md5(text, args):
+async def md5(text, args):
     return get_hash("md5", text)
 
 
-def sha256(text, args):
+async def sha256(text, args):
     return get_hash("sha256", text)
 
 
-def hexidecimal(text, args):
+async def hexidecimal(text, args):
     return text.encode("utf-8").hex()
 
 
 # broken: left zeros not preserved
-def binary(text, args):
+async def binary(text, args):
     h = hexidecimal(text, [])
     return bin(int(h, 16))[2:].zfill(8)
 
 
 ##### Discord markdown
 
-def bold(text, args):
+async def bold(text, args):
     return f"**{text}**"
 
 
-def italic(text, args):
+async def italic(text, args):
     return f"*{text}*"
 
 
-def underline(text, args):
+async def underline(text, args):
     return f"__{text}__"
 
 
-def spoiler(text, args):
+async def spoiler(text, args):
     return f"||{text}||"
 
 
-def code(text, args):
+async def code(text, args):
     return f"`{text}`"
 
 
-def codeblock(text, args):
+async def codeblock(text, args):
     if args != []:
         language = args[0]
     else:
@@ -219,5 +230,5 @@ def codeblock(text, args):
     return f"```{language}\n{text}\n```"
 
 
-def blockquote(text, args):
+async def blockquote(text, args):
     return f"> {text}\n"

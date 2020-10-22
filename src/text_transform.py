@@ -12,7 +12,7 @@ from colorama import Fore, Back, Style
 
 import commands
 
-# ====== GLOBAL STUFF ======
+##### GLOBAL STUFF
 
 # A list of tokens is created with patterns to match on. All command aliases
 # are combined into a big regex to match on.
@@ -30,12 +30,14 @@ _ = [
 TOKENS = [(t[0],re.compile(t[1], re.IGNORECASE)) for t in _]
 
 
-# ====== EXCEPTIONS ======
+##### EXCEPTION
 class PipeBotError(Exception):
+    """ Any Pipebot (lexing, parsing, generation) error will directly raise
+    this with a custom message. """
     pass
 
 
-# ====== TOKENIZER ======
+##### TOKENIZER
 @dataclass
 class Token:
     type_: str
@@ -45,7 +47,7 @@ class Token:
     char_index: int = 0
 
 
-def token_verify(tokens: List[Token]):
+async def token_verify(tokens: List[Token]):
     brace_value = 0
 
     for token in tokens:
@@ -61,10 +63,10 @@ def token_verify(tokens: List[Token]):
         raise PipeBotError("Unbalanced curly braces.")
 
 
-def tokenize(text) -> List[Token]:
+async def tokenize(text) -> List[Token]:
     """ Tokenizes text. """
 
-    def tokenize_single(text, line, column, char_index) -> Optional[Token]:
+    async def tokenize_single(text, line, column, char_index) -> Optional[Token]:
         """ Tokenizes a single token and returns. """
 
         for type_, pattern in TOKENS:
@@ -86,7 +88,7 @@ def tokenize(text) -> List[Token]:
     line_start = 1  # Used to calculate column
 
     while char_index <= last_char:
-        token = tokenize_single(text, line, column, char_index)
+        token = await tokenize_single(text, line, column, char_index)
 
         if token is not None:
 
@@ -103,11 +105,11 @@ def tokenize(text) -> List[Token]:
                 line_start = char_index
             column = char_index - line_start + 1
 
-    token_verify(tokens)
+    await token_verify(tokens)
     return tokens
 
 
-def t_print(tokens: Sequence[Token], show_key=False) -> None:
+async def t_print(tokens: Sequence[Token], show_key=False) -> None:
     """ Prints arbritrary tokens with unique colors. """
 
     foreground = (Fore.RED, Fore.GREEN, Fore.BLUE, Fore.YELLOW, Fore.CYAN,
@@ -135,7 +137,7 @@ def t_print(tokens: Sequence[Token], show_key=False) -> None:
     print()
 
 
-# ====== PARSER ======
+##### PARSER
 
 @dataclass
 class Command:
@@ -155,11 +157,19 @@ class Group:
 
 
 class Parser:
+    """ Recursive decent parser.
+    
+    The class' only shared mutable state is the its index in the tokens list.
+    
+    The only method that should be called externally is `parse`. This method
+    recurses into itself and returns an AST.
+    """
+
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.index = 0  # The only shared mutable state
 
-    def peek(self, expected_types, offset=0) -> bool:
+    async def peek(self, expected_types, offset=0) -> bool:
         """ Looks at tokens without consuming them. `expected_types` can be a single
         token name (string) or a collection of acceptable token names. """
         results: List[bool] = []
@@ -177,9 +187,9 @@ class Parser:
 
         return (True in results)
 
-    def consume(self, expected_type: str) -> Token:
-        if self.peek(expected_type):
-            # (Update index before returning, but use original for return)
+    async def consume(self, expected_type: str) -> Token:
+        if await self.peek(expected_type):
+            # (Update index before returning, but use original for return.)
             self.index += 1
             return self.tokens[self.index - 1]
         else:
@@ -190,60 +200,60 @@ class Parser:
                     print(f"{color}{token.value}{Style.RESET_ALL}", end="")
             raise PipeBotError(f"\n{t.line}, {t.column}: Expected {expected_type}, got {t.type_}")
 
-    def consume_if_exists(self, expected_type: str) -> Optional[Token]:
-        if self.peek(expected_type):
-            return self.consume(expected_type)
+    async def consume_if_exists(self, expected_type: str) -> Optional[Token]:
+        if await self.peek(expected_type):
+            return await self.consume(expected_type)
         return None
 
-    def parse_text(self) -> str:
+    async def parse_text(self) -> str:
         text = ""
-        while self.peek("ANY") and not self.peek(["BRACE_OPEN", "BRACE_CLOSED", "PIPE"]):
-            text += self.consume("ANY").value
+        while await self.peek("ANY") and not await self.peek(["BRACE_OPEN", "BRACE_CLOSED", "PIPE"]):
+            text += (await self.consume("ANY")).value
         return text
 
-    def parse_arguments(self) -> List[str]:
+    async def parse_arguments(self) -> List[str]:
         arguments = []
 
         while True:
-            if self.peek(["TEXT", "COMMAND"]):
-                arguments.append(self.consume("ANY").value)
+            if await self.peek(["TEXT", "COMMAND"]):
+                arguments.append((await self.consume("ANY")).value)
 
-            self.consume_if_exists("WHITESPACE")
-            if self.peek("COMMA"):
-                self.consume("COMMA")
-                self.consume_if_exists("WHITESPACE")
-            elif self.peek("BRACE_CLOSED"):
+            await self.consume_if_exists("WHITESPACE")
+            if await self.peek("COMMA"):
+                await self.consume("COMMA")
+                await self.consume_if_exists("WHITESPACE")
+            elif await self.peek("BRACE_CLOSED"):
                 break
-            elif self.peek("ANY"):
+            elif await self.peek("ANY"):
                 raise PipeBotError("Bad argument.")
             else:
                 # (End of tokens.)
                 break
         return arguments
 
-    def parse_commands(self):
+    async def parse_commands(self):
         commands: List[Command] = []
 
         while True:
             command = Command(alias="", arguments=[])
-            self.consume("PIPE")
-            if not self.peek("ANY"):  # end of tokens
+            await self.consume("PIPE")
+            if not await self.peek("ANY"):  # end of tokens
                 raise PipeBotError("Pipe character at the end of tokens.")
 
-            self.consume_if_exists("WHITESPACE")
-            command.alias = self.consume("COMMAND").value
-            self.consume_if_exists("WHITESPACE")
-            if self.peek(["TEXT", "COMMAND"]):
-                command.arguments = self.parse_arguments()
+            await self.consume_if_exists("WHITESPACE")
+            command.alias = (await self.consume("COMMAND")).value
+            await self.consume_if_exists("WHITESPACE")
+            if await self.peek(["TEXT", "COMMAND"]):
+                command.arguments = await self.parse_arguments()
             commands.append(command)
 
-            self.consume_if_exists("WHITESPACE")
-            if not self.peek("PIPE"):
+            await self.consume_if_exists("WHITESPACE")
+            if not await self.peek("PIPE"):
                 break
 
         return commands
 
-    def parse(self) -> Group:
+    async def parse(self) -> Group:
         content: List[Union[Command,str]] = []
         commands: List[Command] = []
 
@@ -251,29 +261,28 @@ class Parser:
             return Group([""], [])
 
         while (self.index < len(self.tokens)):
-            if self.peek("PIPE"):
-                commands = self.parse_commands()
-            elif self.peek("BRACE_OPEN"):
-                self.consume("BRACE_OPEN")
-                content.append(self.parse())
-            elif self.peek("BRACE_CLOSED"):
-                self.consume("BRACE_CLOSED")
+            if await self.peek("PIPE"):
+                commands = await self.parse_commands()
+            elif await self.peek("BRACE_OPEN"):
+                await self.consume("BRACE_OPEN")
+                content.append(await self.parse())
+            elif await self.peek("BRACE_CLOSED"):
+                await self.consume("BRACE_CLOSED")
                 break
-            elif self.peek("ANY"):
-                content.append(self.parse_text())
-
+            elif await self.peek("ANY"):
+                content.append(await self.parse_text())
 
         return Group(content, commands)
 
 
-def toAST(text) -> str:
-    tokens = tokenize(text)
-    return Parser(tokens).parse()
+async def toAST(text) -> str:
+    tokens = await tokenize(text)
+    return await Parser(tokens).parse()
 
 
-# ====== GENERATOR ======
+##### GENERATOR
 
-def generate(group: Group) -> str:
+async def generate(group: Group) -> str:
     """ Recursively generates text from the AST. """
 
     while True:
@@ -287,7 +296,7 @@ def generate(group: Group) -> str:
         new_group = copy(group)
         for i, c in enumerate(group.content):
             if isinstance(c, Group):
-                new_group.content[i] = generate(c)
+                new_group.content[i] = await generate(c)
 
                 # (Combine all strings if no Groups are left)
                 if all(isinstance(item, str) for item in new_group.content):
@@ -296,16 +305,16 @@ def generate(group: Group) -> str:
             elif len(group.content) == 1:  # (is lone str)
                 text = c.strip()
                 for command in group.commands:
-                    text = commands.alias_command_map[command.alias.lower()]["callback"](text, command.arguments)
+                    text = await commands.alias_command_map[command.alias.lower()]["callback"](text, command.arguments)
                 return text
 
         group = new_group
 
 
-def process_text(text: str) -> str:
+async def process_text(text: str) -> str:
     try:
-        AST = toAST(text)
-        res = generate(AST)
+        AST = await toAST(text)
+        res = await generate(AST)
         return res
     except PipeBotError as e:
         return f"`ERROR: {e}`"

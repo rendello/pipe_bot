@@ -35,7 +35,7 @@ async def on_message(ctx):
 
     ##### Process pipe commands
     elif re.search(command_pattern, ctx.clean_content) is not None:
-        await ctx.channel.send(process_text(ctx.clean_content))
+        await ctx.channel.send(await process_text(ctx.clean_content))
 
 
 client.run(key)
