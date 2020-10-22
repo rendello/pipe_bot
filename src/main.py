@@ -9,7 +9,52 @@ from text_transform import process_text
 from config import key
 
 
-client = discord.Client()
+async def safely_replace_substr(text, substr, new_substr):
+    """ Replace substr with a safely escaped new_substr. """
+    dangerous_chars = r"\{}|,"
+
+    for c in dangerous_chars:
+        new_substr = new_substr.replace(c, "\\" + c)
+
+    return text.replace(substr, new_substr, 1)
+
+
+async def grab_text(ctx, identifier, expected_id_type:str):
+    """ Grabs the identifier to be used for certain functions:
+
+        Identifier is ___ Returns ___
+        1. a message ID   ->  the referenced message
+        2. an @'ed user   ->  their last channel message
+        3. empty          ->  the last channel message
+    """
+    assert expected_id_type in ["message", "user"]
+
+    text = "Not found"
+    if re.match("(\A\d{18}\Z)", identifier):
+        # Text is a message or user ID
+
+        if expected_id_type == "message":
+            async for message in ctx.channel.history(limit=100):
+                if identifier == str(message.id):
+                    text = message.content
+                    break
+        elif expected_id_type == "user":
+            async for message in ctx.channel.history(limit=100):
+                if identifier == str(message.author.id):
+                    text = message.content
+                    break
+    elif identifier.strip() == "":
+        # Grab message directly before user's, regardless of jumps in channel history.
+        history = await ctx.channel.history(limit=10).flatten()
+        for i, message in enumerate(history):
+            if ctx.id == message.id:
+                text = history[i+1].content
+                break
+    else:
+        raise Exception
+
+    return text
+
 
 ##### Compiled regexes.
 # "|zalgo", "| mock"; Not "| randomtext"
@@ -21,7 +66,7 @@ command_pattern = re.compile(commands.aliases_pattern_with_pipe)
 #
 # Group 1: Whole match, whitespace stripped. For text replacement.
 # Group 2: The user ID. May be empty.
-macro_last_pattern = re.compile(r"(?:[^\\\w]|^)(\$LAST(?:\s+<@!)?(?:\s*(\d{18})(?:>)?){0,1})")
+macro_last_pattern = re.compile(r"(?:[^\\\w]|^)(\$LAST(?:\s+<@!)?(?:\s*(\d{18})(?:>)?)?)")
 
 # Matches the $MESSAGE macro in much in the same way as $LAST. Looks for
 # message IDs instead of user IDs. If there's a message link and not an ID, it
@@ -34,6 +79,8 @@ macro_message_pattern = re.compile(r"(?:[^\\\w]|^)(\$MESSAGE\s+(?:https://discor
 
 
 ##### Bot callbacks.
+client = discord.Client()
+
 @client.event
 async def on_ready():
     pass
@@ -56,7 +103,7 @@ async def on_message(ctx):
     ##### Process pipe commands
     elif re.search(command_pattern, ctx.clean_content) is not None:
         # (At least one pipe+command has been found.)
-        text = ctx.clean_content
+        text = ctx.content
 
         ##### Replace $LAST and $MESSAGE macros.
         # Macros are replaced with the given message's text, if possible. The
@@ -73,7 +120,9 @@ async def on_message(ctx):
             text = "$LAST" + text
 
         for last_macro in macro_last_pattern.findall(text):
-            print("WOW")
+            last_text = await grab_text(ctx, last_macro[1], "user")
+
+            text = await safely_replace_substr(text, last_macro[0], last_text)
 
         #for message_macro in macro_message_pattern.findall(text):
 

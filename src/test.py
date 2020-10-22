@@ -28,6 +28,7 @@ def test_macro_last_pattern():
         "$LAST 000000000000000000",
         "$LAST <@!000000000000000000>",
         "Some text $LAST  000000000000000000; text",
+        "Hi, I saw you said {$LAST 000000000000000000|bold|caps}, is that correct?",
     ]
 
     for ex in empty_match_examples:
@@ -67,7 +68,6 @@ def test_macro_message_pattern():
             for substr in ["$MESSAGE", "0" * 18]
         )
         assert macro_message_pattern.findall(ex)[0][1] == "0" * 18
-
 
 test_macro_last_pattern()
 test_macro_message_pattern()
