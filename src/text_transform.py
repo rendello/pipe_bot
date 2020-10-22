@@ -205,9 +205,9 @@ class Parser:
             return await self.consume(expected_type)
         return None
 
-    async def parse_text(self) -> str:
+    async def parse_text(self, break_chars=["BRACE_OPEN", "BRACE_CLOSED", "PIPE"]) -> str:
         text = ""
-        while await self.peek("ANY") and not await self.peek(["BRACE_OPEN", "BRACE_CLOSED", "PIPE"]):
+        while await self.peek("ANY") and not await self.peek(break_chars):
             text += (await self.consume("ANY")).value
         return text
 
@@ -215,20 +215,19 @@ class Parser:
         arguments = []
 
         while True:
-            if await self.peek(["TEXT", "COMMAND"]):
-                arguments.append((await self.consume("ANY")).value)
-
             await self.consume_if_exists("WHITESPACE")
-            if await self.peek("COMMA"):
-                await self.consume("COMMA")
-                await self.consume_if_exists("WHITESPACE")
-            elif await self.peek("BRACE_CLOSED"):
-                break
-            elif await self.peek("ANY"):
-                raise PipeBotError("Bad argument.")
+            if await self.peek("ANY"):
+                arguments.append(await self.parse_text(break_chars=["BRACE_OPEN", "BRACE_CLOSED", "PIPE", "COMMA"]))
+
+                if await self.peek("COMMA"):
+                    await self.consume("COMMA")
+                    await self.consume_if_exists("WHITESPACE")
+                elif await self.peek(["BRACE_CLOSED", "PIPE"]):
+                    break
+                elif await self.peek("ANY"):
+                    raise PipeBotError("Bad argument.")
             else:
-                # (End of tokens.)
-                break
+                break  # (End of tokens.)
         return arguments
 
     async def parse_commands(self):
