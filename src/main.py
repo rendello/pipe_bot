@@ -17,6 +17,7 @@ command_pattern = re.compile(commands.aliases_pattern_with_pipe)
 
 # Matches the $LAST macro if it's not preceded directly by a backslash or some
 # text. It also matches the user id, whether it be directly or in an @.
+# See `test.py` for succeeding and failing examples.
 #
 # Group 1: Whole match, whitespace stripped. For text replacement.
 # Group 2: The user ID. May be empty.
@@ -29,7 +30,7 @@ macro_last_pattern = re.compile(r"(?:[^\\\w]|^)(\$LAST(?:\s+<@!)?(?:\s*(\d{18})(
 #
 # Group 1: Whole match, whitespace stripped. For text replacement.
 # Group 2: The message ID. Won't match if it doesn't exist.
-macro_message_pattern = re.compile(r"(?:[^\\\w]|^)(\$MESSAGE\s+(?:https.*/)?(\d{18}))")
+macro_message_pattern = re.compile(r"(?:[^\\\w]|^)(\$MESSAGE\s+(?:https://discord.com/channels/\d{18}/\d{18}/)?(\d{18}))")
 
 
 ##### Bot callbacks.
@@ -79,4 +80,5 @@ async def on_message(ctx):
         await ctx.channel.send(await process_text(text))
 
 
-client.run(key)
+if __name__ == "__main__":
+    client.run(key)
