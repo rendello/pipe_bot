@@ -81,6 +81,7 @@ macro_message_pattern = re.compile(r"(?:[^\\\w]|^)(\$MESSAGE\s+(?:https://discor
 ##### Bot callbacks.
 client = discord.Client()
 
+
 @client.event
 async def on_ready():
     pass
@@ -88,6 +89,7 @@ async def on_ready():
 
 @client.event
 async def on_message(ctx):
+    text = ctx.content
 
     ##### Ignore messages from self
     if ctx.author.id == client.user.id:
@@ -100,10 +102,9 @@ async def on_message(ctx):
     ):
         pass
 
-    ##### Process pipe commands
-    elif re.search(command_pattern, ctx.clean_content) is not None:
-        # (At least one pipe+command has been found.)
-        text = ctx.content
+    elif (re.search(command_pattern, text) is not None
+        or any(macro in text for macro in ["$LAST", "$MESSAGE"])):
+        # (At least one pipe+command or macro has been found.)
 
         ##### Replace $LAST and $MESSAGE macros
         # Macros are replaced with the given message's text, if possible. The
@@ -127,8 +128,7 @@ async def on_message(ctx):
             message_text = await grab_text(ctx, message_macro[1], "message")
             text = await safely_replace_substr(text, message_macro[0], message_text)
 
-        #for message_macro in macro_message_pattern.findall(text):
-
+        ##### Process pipe commands
         await ctx.channel.send(await process_text(text))
 
 
