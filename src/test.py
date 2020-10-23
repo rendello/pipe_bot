@@ -20,7 +20,7 @@ def test_macro_last_pattern():
     empty_match_examples = [
         "Hello world",
         "Hello world$LAST",
-        "\$LAST",
+        r"\$LAST",
         "$last",
         "$MESSAGE 000000000000000000",
     ]
@@ -46,7 +46,7 @@ def test_macro_message_pattern():
     empty_match_examples = [
         "Hello world",
         "Hello world$MESSAGE",
-        "\$MESSAGE",
+        r"\$MESSAGE",
         "$message",
         "$MESSAGE",
         "$LAST 000000000000000000",
@@ -69,5 +69,6 @@ def test_macro_message_pattern():
         )
         assert macro_message_pattern.findall(ex)[0][1] == "0" * 18
 
-test_macro_last_pattern()
-test_macro_message_pattern()
+if __name__ == "__main__":
+    test_macro_last_pattern()
+    test_macro_message_pattern()

@@ -64,8 +64,8 @@ command_pattern = re.compile(commands.aliases_pattern_with_pipe)
 # text. It also matches the user id, whether it be directly or in an @.
 # See `test.py` for succeeding and failing examples.
 #
-# Group 1: Whole match, whitespace stripped. For text replacement.
-# Group 2: The user ID. May be empty.
+# Group 0: Whole match, whitespace stripped. For text replacement.
+# Group 1: The user ID. May be empty.
 macro_last_pattern = re.compile(r"(?:[^\\\w]|^)(\$LAST(?:\s+<@!)?(?:\s*(\d{18})(?:>)?)?)")
 
 # Matches the $MESSAGE macro in much in the same way as $LAST. Looks for
@@ -73,8 +73,8 @@ macro_last_pattern = re.compile(r"(?:[^\\\w]|^)(\$LAST(?:\s+<@!)?(?:\s*(\d{18})(
 # grabs the ID from the end of the link. Unlike $LAST, it won't match if there's
 # no ID / link, as $MESSAGE on its own is semantically meaningless.
 #
-# Group 1: Whole match, whitespace stripped. For text replacement.
-# Group 2: The message ID. Won't match if it doesn't exist.
+# Group 0: Whole match, whitespace stripped. For text replacement.
+# Group 1: The message ID. Won't match if it doesn't exist.
 macro_message_pattern = re.compile(r"(?:[^\\\w]|^)(\$MESSAGE\s+(?:https://discord.com/channels/\d{18}/\d{18}/)?(\d{18}))")
 
 
@@ -105,7 +105,7 @@ async def on_message(ctx):
         # (At least one pipe+command has been found.)
         text = ctx.content
 
-        ##### Replace $LAST and $MESSAGE macros.
+        ##### Replace $LAST and $MESSAGE macros
         # Macros are replaced with the given message's text, if possible. The
         # text itself will have special characters escaped. See start of file
         # for detailed explanation of the regexes.
@@ -121,8 +121,11 @@ async def on_message(ctx):
 
         for last_macro in macro_last_pattern.findall(text):
             last_text = await grab_text(ctx, last_macro[1], "user")
-
             text = await safely_replace_substr(text, last_macro[0], last_text)
+
+        for message_macro in macro_message_pattern.findall(text):
+            message_text = await grab_text(ctx, message_macro[1], "message")
+            text = await safely_replace_substr(text, message_macro[0], message_text)
 
         #for message_macro in macro_message_pattern.findall(text):
 
