@@ -1,13 +1,14 @@
 #!/usr/bin/python3.8
 
 import re
+from pathlib import Path
 
 import discord
+import toml
 
 import commands
 from text_transform import process_text
-from config import key
-
+import appdirs
 
 async def safely_replace_substr(text, substr, new_substr):
     """ Replace substr with a safely escaped new_substr. """
@@ -20,7 +21,7 @@ async def safely_replace_substr(text, substr, new_substr):
 
 
 async def grab_text(ctx, identifier, expected_id_type:str):
-    """ Grabs the identifier to be used for certain functions:
+    """ Return the text of a previous message, based on parameters.
 
         Identifier is ___ Returns ___
         1. a message ID   ->  the referenced message
@@ -133,4 +134,24 @@ async def on_message(ctx):
 
 
 if __name__ == "__main__":
-    client.run(key)
+
+    # (Platform agnostic config file path.)
+    config_dir = Path(appdirs.user_config_dir("pipebot"))
+    config_file = config_dir.joinpath("config.toml")
+
+    try:
+        with open(config_file, "r") as f:
+            config = toml.load(f)
+        client.run(config["key"])
+
+    except FileNotFoundError:
+        print(f"No config found at \"{config_file}\"")
+        if "y" in input("Create one? [y/n]: ").lower():
+            config = {}
+            config["key"] = input("Discord bot key: ").strip()
+
+            config_dir.mkdir(parents=True, exist_ok=True)
+            with open(config_file, "w+") as f:
+                toml.dump(config, f)
+        else:
+            print("Quitting.")
