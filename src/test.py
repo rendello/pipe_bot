@@ -7,7 +7,7 @@ from hypothesis.strategies import text
 from text_transform import process_text
 from main import macro_message_pattern, macro_last_pattern
 
-## To do: Make work with async
+## Todo: Make work with async
 # @given(text())
 # @settings(max_examples=10_000_000, deadline=100, verbosity=Verbosity.verbose)
 # def test_process_text(s):

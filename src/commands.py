@@ -119,8 +119,8 @@ text_commands = [
         },
     },
     {
-        "aliases": ["hash"],
-        "args": ["type"],
+        "aliases": ["md5", "hash"],
+        "args": [],
         "callback": cf.md5,
         "category": "cyber",
         "description": "Creates an MD5 hash from text.",
@@ -130,9 +130,28 @@ text_commands = [
         },
     },
     {
-        "aliases": ["hex", "hexidecimal"],
+        "aliases": ["sha256"],
         "args": [],
+        "callback": cf.sha256,
+        "category": "cyber",
+        "description": "Creates an MD5 hash from text.",
+        "examples": {
+            "input": "12345goodPa$$word | sha256",
+            "output": "4b89ce08630dc13be855658e9152d47dd1762800f7825d010018e02d3a67c6ae",
+        },
+    },
+    {
+        "aliases": ["hex", "hexidecimal"],
+        "args": ["Seperator. Default is space, \"none\" for none."],
         "callback": cf.hexidecimal,
+        "category": "cyber",
+        "description": "Gets the hex of the text.",
+        "examples": {"input": "", "output": "",},
+    },
+    {
+        "aliases": ["from_hex", "from_hexidecimal", "fhex"],
+        "args": ["Seperator. Default is space, \"none\" for none."],
+        "callback": cf.from_hexidecimal,
         "category": "cyber",
         "description": "Gets the hex of the text.",
         "examples": {"input": "", "output": "",},
@@ -143,6 +162,22 @@ text_commands = [
         "callback": cf.binary,
         "category": "cyber",
         "description": "Gets the binary of the text.",
+        "examples": {"input": "", "output": "",},
+    },
+    {
+        "aliases": ["base64","b64","base_64"],
+        "args": [],
+        "callback": cf.to_base64,
+        "category": "cyber",
+        "description": "Base64 encodes text.",
+        "examples": {"input": "", "output": "",},
+    },
+    {
+        "aliases": ["from_base64","from_b64", "fb64"],
+        "args": [],
+        "callback": cf.from_base64,
+        "category": "cyber",
+        "description": "Base64 encodes text.",
         "examples": {"input": "", "output": "",},
     },
     {
@@ -200,6 +235,14 @@ text_commands = [
         "category": "markdown",
         "description": "Puts text in a blockquote.",
         "examples": {"input": "Hello", "output": "> Hello",},
+    },
+    {
+        "aliases": ["uwu", "owo"],
+        "args": [],
+        "callback": cf.uwu,
+        "category": "misc",
+        "description": "UWU-ifies text.",
+        "examples": {"input": "Hello", "output": "> Hewwo",},
     },
 ]
 

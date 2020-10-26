@@ -2,6 +2,7 @@
 
 import re
 from pathlib import Path
+import asyncio
 
 import discord
 import toml
@@ -9,6 +10,7 @@ import toml
 import commands
 from text_transform import process_text
 import appdirs
+
 
 async def safely_replace_substr(text, substr, new_substr):
     """ Replace substr with a safely escaped new_substr. """
@@ -35,7 +37,7 @@ async def grab_text(ctx, identifier, expected_id_type:str):
         # Text is a message or user ID
 
         if expected_id_type == "message":
-            async for message in ctx.channel.history(limit=100):
+            async for message in ctx.channel.history(limit=1000):
                 if identifier == str(message.id):
                     text = message.content
                     break
@@ -57,6 +59,33 @@ async def grab_text(ctx, identifier, expected_id_type:str):
     return text
 
 
+async def change_status_task():
+    """ Replaces the status at 15 second intervals.  """
+
+    uncommon_statuses = [
+        "Start a message with « | » to use the last message's text!",
+        "Use $LAST to get the last channel message. It accepts usernames too!",
+        "Use $MESSAGE with a message link or ID to use that message's text!",
+    ]
+
+    while True:
+        for command_alias in commands.primary_aliases:
+            statuses = [
+                f'Try typing "| {command_alias}"!',
+                "I do meme-y text transformations! @ me for help!",
+                f'Try the "{command_alias}" command!',
+            ]
+            for status in statuses:
+                await client.change_presence(activity=discord.Game(status))
+                await asyncio.sleep(15)
+                await client.change_presence(activity=discord.Game("@pipe|bot for help"))
+                await asyncio.sleep(10)
+
+        for status in uncommon_statuses:
+            await client.change_presence(activity=discord.Game(status))
+            await asyncio.sleep(30)
+
+
 ##### Compiled regexes.
 # "|zalgo", "| mock"; Not "| randomtext"
 command_pattern = re.compile(commands.aliases_pattern_with_pipe)
@@ -67,7 +96,7 @@ command_pattern = re.compile(commands.aliases_pattern_with_pipe)
 #
 # Group 0: Whole match, whitespace stripped. For text replacement.
 # Group 1: The user ID. May be empty.
-macro_last_pattern = re.compile(r"(?:[^\\\w]|^)(\$LAST(?:\s+<@!)?(?:\s*(\d{18})(?:>)?)?)")
+macro_last_pattern = re.compile(r"(?:[^\\\w]|^)(\$LAST(?:\s+<@(?:!)?)?(?:\s*(\d{18})(?:>)?)?)")
 
 # Matches the $MESSAGE macro in much in the same way as $LAST. Looks for
 # message IDs instead of user IDs. If there's a message link and not an ID, it
@@ -85,7 +114,7 @@ client = discord.Client()
 
 @client.event
 async def on_ready():
-    pass
+    await client.loop.create_task(change_status_task())
 
 
 @client.event
@@ -96,12 +125,6 @@ async def on_message(ctx):
     if ctx.author.id == client.user.id:
         return
 
-    ##### Help message
-    elif (
-        ctx.clean_content.lower().strip() in ["@pipebot", "@pipe|bot"] # Helpful if nick changed.
-        or client.user in ctx.mentions
-    ):
-        pass
 
     elif (re.search(command_pattern, text) is not None
         or any(macro in text for macro in ["$LAST", "$MESSAGE"])):
@@ -131,6 +154,13 @@ async def on_message(ctx):
 
         ##### Process pipe commands
         await ctx.channel.send(await process_text(text))
+
+    ##### Help message
+    elif (
+        ctx.clean_content.lower().strip() in ["@pipebot", "@pipe|bot"] # Helpful if nick changed.
+        or client.user in ctx.mentions
+    ):
+        pass
 
 
 if __name__ == "__main__":

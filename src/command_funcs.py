@@ -4,6 +4,7 @@ import random
 import math
 import hashlib
 import re
+import base64
 
 
 
@@ -182,21 +183,45 @@ async def zalgo(text, args):
 
 
 async def md5(text, args):
-    return get_hash("md5", text)
+    return await get_hash("md5", text)
 
 
 async def sha256(text, args):
-    return get_hash("sha256", text)
+    return await get_hash("sha256", text)
 
 
 async def hexidecimal(text, args):
-    return text.encode("utf-8").hex()
+    if args == [] or args[0].lower() == "space":
+        seperator = " "
+    elif args[0].lower() == "none":
+        seperator = ""
+    else:
+        seperator = args[0]
+
+    hexstr = text.encode("utf-8").hex()
+    hexstr = seperator.join([hexstr[i:i+2] for i in range(0, len(hexstr), 2)])
+
+    return hexstr
+
+
+async def from_hexidecimal(text, args):
+    text = "".join([char if char in "0123456789abcdef" else "" for char in text.lower()])
+    decoded = bytes.fromhex(text).decode('utf-8')
+    return decoded
 
 
 # broken: left zeros not preserved
 async def binary(text, args):
     h = hexidecimal(text, [])
     return bin(int(h, 16))[2:].zfill(8)
+
+
+async def to_base64(text, args):
+    return base64.standard_b64encode(text.encode()).decode()
+
+
+async def from_base64(text, args):
+    return base64.b64decode(text).decode()
 
 
 ##### Discord markdown
@@ -231,4 +256,14 @@ async def codeblock(text, args):
 
 
 async def blockquote(text, args):
-    return f"> {text}\n"
+    return f"\n> {text}\n"
+
+
+##### Misc
+async def uwu(text, args):
+    """ Warning: cursed. """
+    replacements = [("r","w"), ("R", "W"), ("l", "w"), ("L", "W"), ("no", "nyo"), ("No", "Nyo"), ("NO", "NYO"), ("I", "i")]
+
+    for r in replacements:
+        text = text.replace(r[0], r[1])
+    return text
