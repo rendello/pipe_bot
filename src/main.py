@@ -158,7 +158,6 @@ async def on_message(ctx):
     if ctx.author.id == client.user.id:
         return
 
-
     elif (re.search(command_pattern, text) is not None
         or any(macro in text for macro in ["$LAST", "$MESSAGE"])):
         # (At least one pipe+command or macro has been found.)

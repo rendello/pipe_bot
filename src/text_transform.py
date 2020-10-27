@@ -18,7 +18,7 @@ import commands
 # are combined into a big regex to match on.
 _ = [
     ("TEXT", r'\\(\n|.)'), # Escaped char.
-    ("PIPE", "(\|)"),
+    ("PIPE", r"(\|)"),
     ("COMMA", "(,)"),
     ("BRACE_OPEN", "({)"),
     ("BRACE_CLOSED", "(})"),
@@ -194,16 +194,13 @@ class Parser:
             return self.tokens[self.index - 1]
         else:
             t = self.tokens[self.index]
-            for token in self.tokens:
-                if token.line == t.line:
-                    color: str = Back.RED + Fore.YELLOW if token == t else ""
-                    print(f"{color}{token.value}{Style.RESET_ALL}", end="")
             raise PipeBotError(f"\n{t.line}, {t.column}: Expected {expected_type}, got {t.type_}")
 
-    async def consume_if_exists(self, expected_type: str) -> Optional[Token]:
-        if await self.peek(expected_type):
-            return await self.consume(expected_type)
-        return None
+    async def consume_space(self) -> None:
+        """ Consumes whitespace and newlines until none left. """
+
+        while await self.peek(["WHITESPACE","NEWLINE"]):
+            await self.consume(["WHITESPACE", "NEWLINE"])
 
     async def parse_text(self, break_chars=["BRACE_OPEN", "BRACE_CLOSED", "PIPE"]) -> str:
         text = ""
@@ -215,13 +212,13 @@ class Parser:
         arguments = []
 
         while True:
-            await self.consume_if_exists("WHITESPACE")
+            await self.consume_space()
             if await self.peek("ANY"):
                 arguments.append(await self.parse_text(break_chars=["BRACE_OPEN", "BRACE_CLOSED", "PIPE", "COMMA"]))
 
                 if await self.peek("COMMA"):
                     await self.consume("COMMA")
-                    await self.consume_if_exists("WHITESPACE")
+                    await self.consume_space()
                 elif await self.peek(["BRACE_CLOSED", "PIPE"]):
                     break
                 elif await self.peek("ANY"):
@@ -236,17 +233,22 @@ class Parser:
         while True:
             command = Command(alias="", arguments=[])
             await self.consume("PIPE")
+            await self.consume_space()
             if not await self.peek("ANY"):  # end of tokens
                 raise PipeBotError("Pipe character at the end of tokens.")
 
-            await self.consume_if_exists(["WHITESPACE", "NEWLINE"])
+            await self.consume_space()
+
             command.alias = (await self.consume("COMMAND")).value
-            await self.consume_if_exists(["WHITESPACE", "NEWLINE"])
+
+            await self.consume_space()
             if await self.peek(["TEXT", "COMMAND"]):
                 command.arguments = await self.parse_arguments()
+            elif await self.peek("COMMA"):
+                raise PipeBotError("Unexpected comma after command.")
             commands.append(command)
 
-            await self.consume_if_exists("WHITESPACE")
+            await self.consume_space()
             if not await self.peek("PIPE"):
                 break
 

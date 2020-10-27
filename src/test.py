@@ -1,19 +1,15 @@
 #!/usr/bin/python3.8
 
+import random
+
 import pytest
 from hypothesis import given, settings, Verbosity, assume
 from hypothesis.strategies import text
+import asyncio
 
 from text_transform import process_text
 from main import macro_message_pattern, macro_last_pattern
 
-## Todo: Make work with async
-# @given(text())
-# @settings(max_examples=10_000_000, deadline=100, verbosity=Verbosity.verbose)
-# def test_process_text(s):
-#    assume(s not in ["|\r","| "])
-#    assert isinstance(process_text(s), str)
-# test_process_text()
 
 
 def test_macro_last_pattern():
@@ -69,6 +65,33 @@ def test_macro_message_pattern():
         )
         assert macro_message_pattern.findall(ex)[0][1] == "0" * 18
 
-if __name__ == "__main__":
-    test_macro_last_pattern()
-    test_macro_message_pattern()
+
+@pytest.mark.asyncio 
+async def test_process_text():
+    """ Fuzzes process_text. The goal is to stress-test the parsing engine. """
+
+    tokens = ["mock ", " zalgo", "caps ", " clap", "|", ",", "\"", "\n", "{", "}", " ", "\t", "\\"]
+
+    for i in range(50_000):
+        text = ""
+        for j in range(random.randint(0, (i * 5) % 80)):
+            text += random.choice(tokens)
+            if random.randint(0,160) == 5:
+                for k in range(random.randint(0, 30)):
+                    text += random.choice(" abcdefghijklmnopqrstuvwxyz")
+
+
+        # Try all combinations without curly braces as well, since "unbalanced
+        # curly brace" are very common and will prevent other errors from showing up.
+        for t in (text, text.replace("{", "").replace("}", "")):
+            #print("INPUT: ", t)
+            processed = await process_text(t)
+            #print("OUTPUT: ", processed)
+            #print("---------------------")
+            assert isinstance(processed, str)
+
+
+@given(text())
+@settings(max_examples=100_000, deadline=1000)
+def test_process_text_hyp(s):
+   assert isinstance(asyncio.run(process_text(s)), str)

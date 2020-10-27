@@ -160,7 +160,11 @@ async def zalgo(text, args):
         combining_char = random.choice(combining_chars)
         return char + combining_char
 
-    frequency = 150 / len(text)
+    if len(text) != 0:
+        frequency = 150 / len(text)
+    else:
+        frequency = 150
+
     sum_of_frequencies = 0
     new_text = ""
 
