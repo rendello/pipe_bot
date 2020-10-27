@@ -7,7 +7,6 @@ import re
 import base64
 
 
-
 ##### Helper functions
 
 async def char_translate(text, chars, mapped_chars):

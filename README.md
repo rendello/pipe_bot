@@ -16,6 +16,20 @@ the bot was built to be easily extensible.
 
 ## Commands
 
+<table>
+
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td>upper</td>
+<td>Uppercases</td>
+</tr>
+</table> 
+
+
 ## Modification and development
 This project is licensed under the Simplified BSD license. If modified and
 publicly re-released, I ask that you change the name to avoid confusion.

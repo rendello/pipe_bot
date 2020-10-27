@@ -239,9 +239,9 @@ class Parser:
             if not await self.peek("ANY"):  # end of tokens
                 raise PipeBotError("Pipe character at the end of tokens.")
 
-            await self.consume_if_exists("WHITESPACE")
+            await self.consume_if_exists(["WHITESPACE", "NEWLINE"])
             command.alias = (await self.consume("COMMAND")).value
-            await self.consume_if_exists("WHITESPACE")
+            await self.consume_if_exists(["WHITESPACE", "NEWLINE"])
             if await self.peek(["TEXT", "COMMAND"]):
                 command.arguments = await self.parse_arguments()
             commands.append(command)

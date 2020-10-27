@@ -12,6 +12,38 @@ from text_transform import process_text
 import appdirs
 
 
+#help_msg = ""
+#for category, aliases in commands.primary_aliases_per_category.items():
+#    help_msg += f"\n**{category}**\n"
+#    for alias in aliases:
+#        help_msg += f"{alias}, "
+
+help_msg = ""
+
+description = """
+pipe|bot runs text through commands and posts the results. Run a command by \
+appending it to your message with the pipe character, « | ».
+
+"**Hello, world! | uppercase**" will give you "**HELLO, WORLD!**"
+"**Hello, world! | mock**" will give you "**hElLo, woRLd!**"
+
+You can chain together as many commands as you would like:
+
+"**Hello, world! | caps | zalgo | italics**" gives "**H͓̒͘E̜͒͜L̷̥ͥL͔̠̖Ǫ̼ͧ,̪̺͢ W̸̪͠Ǫ͛̀R̞̻̣L̶͑̇D̷͓͛**"
+
+You can run sub-groups between curly braces:
+
+"**Hello, {world! | redact}**" gives "**Hello, █████!**"
+
+`@pipe|bot ADVANCED` for advanced usage.
+`@pipe|bot COMMANDS` for command breakdown.
+`@pipe|bot <command>` for details on a specific command.
+"""
+
+help_embed = discord.Embed(title="**Basic Usage of pipe|bot**", description=description, color=0xfcf169)
+
+
+
 async def safely_replace_substr(text, substr, new_substr):
     """ Replace substr with a safely escaped new_substr. """
     dangerous_chars = r"\{}|,"
@@ -32,8 +64,9 @@ async def grab_text(ctx, identifier, expected_id_type:str):
     """
     assert expected_id_type in ["message", "user"]
 
-    text = "Not found"
-    if re.match("(\A\d{18}\Z)", identifier):
+    text = "`INFO: Not found`"
+
+    if re.match(r"(\A\d{18}\Z)", identifier):
         # Text is a message or user ID
 
         if expected_id_type == "message":
@@ -160,7 +193,7 @@ async def on_message(ctx):
         ctx.clean_content.lower().strip() in ["@pipebot", "@pipe|bot"] # Helpful if nick changed.
         or client.user in ctx.mentions
     ):
-        pass
+        await ctx.channel.send(help_msg, embed=help_embed)
 
 
 if __name__ == "__main__":
@@ -179,6 +212,7 @@ if __name__ == "__main__":
         if "y" in input("Create one? [y/n]: ").lower():
             config = {}
             config["key"] = input("Discord bot key: ").strip()
+            config["max_response_length"] = input("Max response length (max 2000): ").strip()
 
             config_dir.mkdir(parents=True, exist_ok=True)
             with open(config_file, "w+") as f:

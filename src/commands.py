@@ -3,7 +3,10 @@
 from typing import List
 import command_funcs as cf
 
-# See end of file for useful variables related to commands.
+# Due to their inherent structure, commands can't be easily organized in any
+# given way. The existence of multiple aliases per command makes things messy.
+# As such, they are stored in this flat dictionary for ease of creation, and
+# a number of convenient mappings are provided at the end of this file.
 
 text_commands = [
     {
@@ -33,7 +36,7 @@ text_commands = [
         "args": [],
         "callback": cf.swapcase,
         "category": "basic",
-        "description": "Swaps the case of the text. Also see `mock`.",
+        "description": "Swaps the case of the text.",
         "example": {
             "input": "Hello, WORLD! | swapcase",
             "output": "hELLO, world!",
@@ -250,12 +253,23 @@ text_commands = [
 # Map of aliases to their respective command dicts.
 alias_command_map = {alias: tc for tc in text_commands for alias in tc['aliases']}
 
-# Aliases.
-primary_aliases: List[str] = [tc["aliases"][0] for tc in text_commands]
-all_aliases: List[str] = [alias for tc in text_commands for alias in tc['aliases']]
-
 # Unique categories in alphabetical order.
 categories: List[str] = sorted(set([command["category"] for command in text_commands]))
+
+# Aliases.
+all_aliases: List[str] = [alias for tc in text_commands for alias in tc['aliases']]
+primary_aliases: List[str] = [tc["aliases"][0] for tc in text_commands]
+
+# Primary aliases, in alphabetical order, per category.
+primary_aliases_per_category = {}
+for c in categories:
+
+    cat_aliases = []
+    for a in primary_aliases:
+        if alias_command_map[a]["category"] == c:
+            cat_aliases.append(a)
+
+    primary_aliases_per_category[c] = sorted(cat_aliases, key=str.lower)
 
 # Useful regex patterns (not compiled).
 aliases_pattern = fr"\b({'|'.join(all_aliases)})\b"  # Matches "zalgo", "caps", etc.
