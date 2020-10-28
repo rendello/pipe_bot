@@ -306,7 +306,7 @@ async def generate(group: Group) -> str:
             elif len(group.content) == 1:  # (is lone str)
                 text = c.strip()
                 for command in group.commands:
-                    text = await commands.alias_command_map[command.alias.lower()]["callback"](text, command.arguments)
+                    text = await commands.alias_map[command.alias.lower()]["callback"](text, command.arguments)
                 return text
 
         group = new_group

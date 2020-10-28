@@ -58,7 +58,7 @@ def generate_html_command_table():
 
     for _, aliases in commands.primary_aliases_per_category.items():
         for alias in aliases:
-            description = commands.alias_command_map[alias]['description']
+            description = commands.alias_map[alias]['description']
 
             esc_alias = html_escape(alias)
             esc_description = html_escape(description)
