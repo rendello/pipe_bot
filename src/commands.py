@@ -8,6 +8,14 @@ import command_funcs as cf
 # As such, they are stored in this flat dictionary for ease of creation, and
 # a number of convenient mappings are provided at the end of this file.
 
+# aliases: A list of aliases to used to call the function. The first alias is
+#     the primary one, and will be automatically used in all documentation.
+# callback: The callback function. See `command_funcs.py`.
+# category: self-explanatory.
+# description: A short description. Describes the processed text, not the
+#    action taken, ie. "Scrambled characters", not "Scrambles characters".
+# example: A full example of the command on some text. Can include args.
+
 text_commands = [
     {
         "aliases": ["caps", "uppercase", "upper"],
@@ -33,7 +41,7 @@ text_commands = [
         "aliases": ["swapcase", "swap case", "swap"],
         "callback": cf.swapcase,
         "category": "basic",
-        "description": "Swaps case per letter",
+        "description": "Swapped case per letter",
         "example": {
             "input": "Hello, WORLD! | swapcase",
             "output": "hELLO, world!",

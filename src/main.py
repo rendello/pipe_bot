@@ -22,7 +22,7 @@ async def safely_replace_substr(text, substr, new_substr):
     return text.replace(substr, new_substr, 1)
 
 
-async def grab_text(ctx, identifier, expected_id_type: str):
+async def grab_message(ctx, identifier, expected_id_type: str):
     """ Return the text of a previous message, based on parameters.
 
         Identifier is ___ Returns ___
@@ -32,7 +32,7 @@ async def grab_text(ctx, identifier, expected_id_type: str):
     """
     assert expected_id_type in ["message", "user"]
 
-    text = "`INFO: Not found`"
+    message = None
 
     if re.match(r"(\A\d{18}\Z)", identifier):
         # Text is a message or user ID
@@ -40,24 +40,24 @@ async def grab_text(ctx, identifier, expected_id_type: str):
         if expected_id_type == "message":
             async for message in ctx.channel.history(limit=1000):
                 if identifier == str(message.id):
-                    text = message.content
+                    message = message
                     break
         elif expected_id_type == "user":
             async for message in ctx.channel.history(limit=100):
                 if identifier == str(message.author.id):
-                    text = message.content
+                    message = message
                     break
     elif identifier.strip() == "":
         # Grab message directly before user's, regardless of jumps in channel history.
         history = await ctx.channel.history(limit=10).flatten()
         for i, message in enumerate(history):
             if ctx.id == message.id:
-                text = history[i + 1].content
+                message = history[i + 1]
                 break
     else:
         raise Exception
 
-    return text
+    return message
 
 
 async def change_status_task():
@@ -87,6 +87,20 @@ async def change_status_task():
         for status in uncommon_statuses:
             await client.change_presence(activity=discord.Game(status))
             await asyncio.sleep(30)
+
+
+async def clean_up_mentions(msg, text):
+    for user in msg.mentions:
+        text = text.replace(f"<@{user.id}>", f"@\u200b{user.display_name}")
+        text = text.replace(f"<@!{user.id}>", f"@\u200b{user.display_name}") # Has nick set
+
+    for role in msg.role_mentions:
+        text = text.replace(f"<@&{role.id}>", f"@\u200b{role.name}")
+
+    text = text.replace(f"@everyone", f"@\u200beveryone")
+    text = text.replace(f"@here", f"@\u200bhere")
+
+    return text
 
 
 ##### User help data
@@ -210,7 +224,7 @@ async def on_ready():
 
 @client.event
 async def on_message(ctx):
-    text = ctx.content
+    text = ctx.content.strip()
 
     ##### Ignore messages from self
     if ctx.author.id == client.user.id:
@@ -236,24 +250,20 @@ async def on_message(ctx):
             text = "$LAST" + text
 
         for last_macro in macro_last_pattern.findall(text):
-            last_text = await grab_text(ctx, last_macro[1], "user")
-            text = await safely_replace_substr(text, last_macro[0], last_text)
+            message = await grab_message(ctx, last_macro[1], "user")
+            message_text = await clean_up_mentions(message, message.content)
+            text = await safely_replace_substr(text, last_macro[0], message_text)
 
         for message_macro in macro_message_pattern.findall(text):
-            message_text = await grab_text(ctx, message_macro[1], "message")
+            message = await grab_message(ctx, message_macro[1], "message")
+            message_text = await clean_up_mentions(message, message.content)
             text = await safely_replace_substr(text, message_macro[0], message_text)
 
         ##### Process pipe commands
         processed_text = await process_text(text)
 
-        # Clean up @mentions
-        for user in ctx.mentions:
-            processed_text = processed_text.replace(f"<@{user.id}>", f"@{user.name}")
-            processed_text = processed_text.replace(f"<@!{user.id}>", f"@{user.name}") # Has nick set
-        processed_text = processed_text.replace(f"@everyone", f"@\u200beveryone")
-        processed_text = processed_text.replace(f"@here", f"@\u200bhere")
-
-        await ctx.channel.send(processed_text)
+        clean_text = await clean_up_mentions(ctx, processed_text)
+        await ctx.channel.send(clean_text)
 
     ##### Help messages
     ltext = text.lower().strip()
