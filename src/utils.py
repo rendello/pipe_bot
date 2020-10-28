@@ -3,8 +3,11 @@
 # A collection of utilities related to the program, but that don't need to be
 # included in its source code directly.
 
+import asyncio
+
 from colorama import Fore, Back, Style
 import commands
+import text_transform
 
 
 def t_print(tokens, show_key=False) -> None:
@@ -51,15 +54,21 @@ def generate_html_command_table():
         return text
 
     text = "<!-- Generated. See `utils.py` -->\n"
-    text += "<table>\n<tr><th>Command</th><th>Description</th></tr>\n"
+    text += "<table>\n<tr><th>Command</th><th>Description</th><th>Example</th></tr>\n"
 
     for _, aliases in commands.primary_aliases_per_category.items():
         for alias in aliases:
+            description = commands.alias_command_map[alias]['description']
 
             esc_alias = html_escape(alias)
-            esc_description = html_escape(commands.alias_command_map[alias]['description'])
+            esc_description = html_escape(description)
 
-            text += f"<tr><td>{esc_alias}</td><td>{esc_description}</td></tr>\n"
+            try:
+                esc_example = html_escape(asyncio.run(text_transform.process_text(f"{description}|{alias}")))
+            except:
+                esc_example = "N/A"
+
+            text += f"<tr><td>{esc_alias}</td><td>{esc_description}</td><td>{esc_example}</td></tr>\n"
     text += "</table>"
     return text
 
