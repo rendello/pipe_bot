@@ -3,7 +3,7 @@
 import random
 
 import pytest
-from hypothesis import given, settings, Verbosity, assume
+from hypothesis import given, settings
 from hypothesis.strategies import text
 import asyncio
 
@@ -92,6 +92,6 @@ async def test_process_text():
 
 
 @given(text())
-@settings(max_examples=100_000, deadline=1000)
+@settings(max_examples=50_000, deadline=1000)
 def test_process_text_hyp(s):
    assert isinstance(asyncio.run(process_text(s)), str)

@@ -12,13 +12,13 @@ from text_transform import process_text
 import appdirs
 
 
-#help_msg = ""
-#for category, aliases in commands.primary_aliases_per_category.items():
-#    help_msg += f"\n**{category}**\n"
-#    for alias in aliases:
-#        help_msg += f"{alias}, "
-
 help_msg = ""
+for category, aliases in commands.primary_aliases_per_category.items():
+    help_msg += f"\n**{category}**\n"
+    for alias in aliases:
+        help_msg += f"{alias}, "
+
+#help_msg = ""
 
 description = """
 pipe|bot runs text through commands and posts the results. Run a command by \
@@ -42,6 +42,19 @@ You can run sub-groups between curly braces:
 
 help_embed = discord.Embed(title="**Basic Usage of pipe|bot**", description=description, color=0xfcf169)
 
+advanced = """
+pipe|bot can use the text of previous messages with $LAST and $MESSAGE.
+
+$LAST is replaced with the text of the last message in the channel. It can also
+take a @mention or an ID, and use that person's last channel message.
+
+$MESSAGE is similar, but requires a message link or ID.
+
+With both $LAST and $MESSAGE, the message text is escaped, so characters such
+as pipes and curly braces won't interfere with the current operations.
+
+As a convenience, a $LAST is implied if a message starts with « | ».
+"""
 
 
 async def safely_replace_substr(text, substr, new_substr):

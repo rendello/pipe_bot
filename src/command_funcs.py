@@ -1,5 +1,6 @@
 #!/usr/bin/python3.8
 
+from typing import List
 import random
 import math
 import hashlib
@@ -27,6 +28,14 @@ async def get_hash(hash_type, text):
     h.update(text.encode())
     return h.hexdigest()
 
+async def get_seperator(args: List[str]) -> str:
+    if args == [] or args[0].lower() == "space":
+        seperator = " "
+    elif args[0].lower() == "none":
+        seperator = ""
+    else:
+        seperator = args[0]
+    return seperator
 
 
 ##### Callbacks
@@ -96,11 +105,18 @@ async def redact(text, args):
     return new_text
 
 
-#async def bold(text, args):
-#    standard = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-#    bold = "𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳"
-#
-#    return await char_translate(text, standard, bold)
+async def serif(text, args):
+    standard = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    bold = "𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳"
+
+    return await char_translate(text, standard, bold)
+
+
+async def upside_down(text, args):
+    standard = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    ud = "ɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎz∀qƆpƎℲפHIſʞ˥WNOԀQɹS┴∩ΛMX⅄Z"
+
+    return await char_translate(text, standard, ud)
 
 
 async def clap(text, args):
@@ -163,7 +179,7 @@ async def zalgo(text, args):
     if len(text) != 0:
         frequency = 150 / len(text)
     else:
-        frequency = 150
+        frequency = 0
 
     sum_of_frequencies = 0
     new_text = ""
@@ -194,12 +210,7 @@ async def sha256(text, args):
 
 
 async def hexidecimal(text, args):
-    if args == [] or args[0].lower() == "space":
-        seperator = " "
-    elif args[0].lower() == "none":
-        seperator = ""
-    else:
-        seperator = args[0]
+    seperator = await get_seperator(args)
 
     hexstr = text.encode("utf-8").hex()
     hexstr = seperator.join([hexstr[i:i+2] for i in range(0, len(hexstr), 2)])
@@ -213,10 +224,10 @@ async def from_hexidecimal(text, args):
     return decoded
 
 
-# broken: left zeros not preserved
 async def binary(text, args):
-    h = hexidecimal(text, [])
-    return bin(int(h, 16))[2:].zfill(8)
+    seperator = await get_seperator(args)
+
+    return seperator.join(format(x, 'b') for x in bytearray(text, 'utf-8'))
 
 
 async def to_base64(text, args):

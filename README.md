@@ -15,20 +15,38 @@ I encourage any server owners to modify and self host the bot themselves, as
 the bot was built to be easily extensible.
 
 ## Commands
-
+<!-- Generated. See `utils.py` -->
 <table>
-
-<tr>
-<th>Command</th>
-<th>Description</th>
-</tr>
-
-<tr>
-<td>upper</td>
-<td>Uppercases</td>
-</tr>
-</table> 
-
+<tr><th>Command</th><th>Description</th></tr>
+<tr><td>caps</td><td>Uppercase</td></tr>
+<tr><td>lowercase</td><td>Lowercase</td></tr>
+<tr><td>swapcase</td><td>Swaps case per letter</td></tr>
+<tr><td>base64</td><td>Base64 encoded</td></tr>
+<tr><td>binary</td><td>Binary representation</td></tr>
+<tr><td>from_base64</td><td>Text from base 64</td></tr>
+<tr><td>from_hex</td><td>Text from hexidecimal</td></tr>
+<tr><td>hex</td><td>Hexidecimal representation</td></tr>
+<tr><td>md5</td><td>MD5 hash</td></tr>
+<tr><td>sha256</td><td>SHA256 hash</td></tr>
+<tr><td>blockquote</td><td>Block quote</td></tr>
+<tr><td>bold</td><td>Bold</td></tr>
+<tr><td>code</td><td>Inline code tag</td></tr>
+<tr><td>codeblock</td><td>Code block</td></tr>
+<tr><td>italic</td><td>Italics</td></tr>
+<tr><td>spoiler</td><td>Spoiler tag</td></tr>
+<tr><td>underline</td><td>Underline</td></tr>
+<tr><td>clap</td><td>Emojis between words (default 👏)</td></tr>
+<tr><td>mock</td><td>Random upper/lowercase</td></tr>
+<tr><td>scramble</td><td>Scrambled characters</td></tr>
+<tr><td>uwu</td><td>Cursed UwU text</td></tr>
+<tr><td>zalgo</td><td>Spooky zalgo text</td></tr>
+<tr><td>blackletter</td><td>Old timey blackletter</td></tr>
+<tr><td>leet</td><td>Elite hacker text</td></tr>
+<tr><td>redact</td><td>Letters substituted for character (default █).</td></tr>
+<tr><td>serif</td><td>Unicode serif font</td></tr>
+<tr><td>upsidedown</td><td>Unicode upside-down font</td></tr>
+<tr><td>vaporwave</td><td>CJK full width letters</td></tr>
+</table>
 
 ## Modification and development
 This project is licensed under the Simplified BSD license. If modified and
