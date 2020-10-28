@@ -23,13 +23,7 @@ async def safely_replace_substr(text, substr, new_substr):
 
 
 async def grab_message(ctx, identifier, expected_id_type: str):
-    """ Return the text of a previous message, based on parameters.
-
-        Identifier is ___ Returns ___
-        1. a message ID   ->  the referenced message
-        2. an @'ed user   ->  their last channel message
-        3. empty          ->  the last channel message
-    """
+    """ Grab a certain message, based on the parameters. """
     assert expected_id_type in ["message", "user"]
 
     message = None
@@ -43,10 +37,19 @@ async def grab_message(ctx, identifier, expected_id_type: str):
                     message = message
                     break
         elif expected_id_type == "user":
+            # If the person calling is looking for their own last message,
+            # ignore the very last message they sent, which will be the calling
+            # message itself. There is potential for a race condition, but it's
+            # low-stakes.
+            calling_message_found = False
             async for message in ctx.channel.history(limit=100):
                 if identifier == str(message.author.id):
-                    message = message
-                    break
+                    if identifier == str(ctx.author.id) and calling_message_found == False:
+                        calling_message_found = True
+                        continue
+                    else:
+                        message = message
+                        break
     elif identifier.strip() == "":
         # Grab message directly before user's, regardless of jumps in channel history.
         history = await ctx.channel.history(limit=10).flatten()
@@ -92,7 +95,9 @@ async def change_status_task():
 async def clean_up_mentions(msg, text):
     for user in msg.mentions:
         text = text.replace(f"<@{user.id}>", f"@\u200b{user.display_name}")
-        text = text.replace(f"<@!{user.id}>", f"@\u200b{user.display_name}") # Has nick set
+        text = text.replace(
+            f"<@!{user.id}>", f"@\u200b{user.display_name}"
+        )  # Has nick set
 
     for role in msg.role_mentions:
         text = text.replace(f"<@&{role.id}>", f"@\u200b{role.name}")
@@ -230,9 +235,11 @@ async def on_message(ctx):
     if ctx.author.id == client.user.id:
         return
 
-    elif not (re.search(command_pattern, text) is None and
-        re.search(macro_message_pattern, text) is None and
-        re.search(macro_last_pattern, text) is None):
+    elif not (
+        re.search(command_pattern, text) is None
+        and re.search(macro_message_pattern, text) is None
+        and re.search(macro_last_pattern, text) is None
+    ):
         # (At least one pipe+command or macro has been found.)
 
         ##### Replace $LAST and $MESSAGE macros
@@ -262,14 +269,19 @@ async def on_message(ctx):
         ##### Process pipe commands
         processed_text = await process_text(text)
         clean_text = await clean_up_mentions(ctx, processed_text)
-        await ctx.channel.send(clean_text)
+
+        if clean_text != "":
+            await ctx.channel.send(clean_text)
+        else:
+            await ctx.channel.send(
+                "`INFO: Cannot send an empty message. This often occurs when using $LAST on an embed.`"
+            )
 
     ##### Help messages
-    ltext = text.lower().strip()
 
-    if ltext.startswith(f"<@!{client.user.id}>"):
+    elif text.lower().strip().startswith(f"<@!{client.user.id}>"):
         try:
-            argument = ltext.split()[1].strip()
+            argument = text.lower().split()[1].strip()
             try:
                 await ctx.channel.send(embed=help_embeds[argument])
             except KeyError:
