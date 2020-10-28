@@ -230,9 +230,9 @@ async def on_message(ctx):
     if ctx.author.id == client.user.id:
         return
 
-    elif re.search(command_pattern, text) is not None or any(
-        macro in text for macro in ["$LAST", "$MESSAGE"]
-    ):
+    elif not (re.search(command_pattern, text) is None and
+        re.search(macro_message_pattern, text) is None and
+        re.search(macro_last_pattern, text) is None):
         # (At least one pipe+command or macro has been found.)
 
         ##### Replace $LAST and $MESSAGE macros
@@ -261,7 +261,6 @@ async def on_message(ctx):
 
         ##### Process pipe commands
         processed_text = await process_text(text)
-
         clean_text = await clean_up_mentions(ctx, processed_text)
         await ctx.channel.send(clean_text)
 
