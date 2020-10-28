@@ -4,11 +4,11 @@
 together with pipes. It also supports arbritrary subgrouping.
 
 ## Usage
-pipe|bot runs text through commands and posts the results. Run a command by \
+### Basic
+pipe|bot runs text through commands and posts the results. Run a command by
 appending it to your message with the pipe character, « | ».
 
 "**Hello, world! | uppercase**" will give you "**HELLO, WORLD!**"
-"**Hello, world! | mock**" will give you "**hElLo, woRLd!**"
 
 You can chain together as many commands as you would like:
 
@@ -18,14 +18,15 @@ You can run sub-groups between curly braces:
 
 "**Hello, {world! | redact}**" gives "**Hello, █████!**"
 
-pipe|bot can use the text of previous messages with $LAST and $MESSAGE.
+### Advanced
+pipe|bot can use the text of previous messages with **$LAST** and **$MESSAGE**.
 
-$LAST is replaced with the text of the last message in the channel. It can also
+**$LAST** is replaced with the text of the last message in the channel. It can also
 take a @mention or an ID, and use that person's last channel message.
 
-$MESSAGE is similar, but requires a message link or ID.
+**$MESSAGE** is similar, but requires a message link or ID.
 
-With both $LAST and $MESSAGE, the message text is escaped, so characters such
+With both **$LAST** and **$MESSAGE**, the message text is escaped, so characters such
 as pipes and curly braces won't interfere with the current operations.
 
 As a convenience, a $LAST is implied if a message starts with « | ».
