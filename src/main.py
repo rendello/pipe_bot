@@ -244,7 +244,16 @@ async def on_message(ctx):
             text = await safely_replace_substr(text, message_macro[0], message_text)
 
         ##### Process pipe commands
-        await ctx.channel.send(await process_text(text))
+        processed_text = await process_text(text)
+
+        # Clean up @mentions
+        for user in ctx.mentions:
+            processed_text = processed_text.replace(f"<@{user.id}>", f"@{user.name}")
+            processed_text = processed_text.replace(f"<@!{user.id}>", f"@{user.name}") # Has nick set
+        processed_text = processed_text.replace(f"@everyone", f"@\u200beveryone")
+        processed_text = processed_text.replace(f"@here", f"@\u200bhere")
+
+        await ctx.channel.send(processed_text)
 
     ##### Help messages
     ltext = text.lower().strip()
@@ -252,13 +261,12 @@ async def on_message(ctx):
     if ltext.startswith(f"<@!{client.user.id}>"):
         try:
             argument = ltext.split()[1].strip()
+            try:
+                await ctx.channel.send(embed=help_embeds[argument])
+            except KeyError:
+                await ctx.channel.send(embed=help_embeds["unknown"])
         except IndexError:
             await ctx.channel.send(embed=help_embeds["basics"])
-
-        try:
-            await ctx.channel.send(embed=help_embeds[argument])
-        except KeyError:
-            await ctx.channel.send(embed=help_embeds["unknown"])
 
 
 if __name__ == "__main__":
