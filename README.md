@@ -4,9 +4,9 @@
 together with pipes. It also supports arbritrary subgrouping.
 
 ## Usage
-Basic usage 
+[Basic usage]
 
-## Examples
+## Commands
 <!-- Generated. See `utils.py` -->
 <table>
 <tr><th>Command</th><th>Description</th><th>Example</th></tr>
@@ -45,17 +45,14 @@ Code block
 </table>
 
 ## Installation
-The standard bot can be added to your server with the following link:
+The bot can be added to your server with the following link:
 
-I encourage any server owners to modify and self host the bot themselves, as
-the bot was built to be easily extensible.
+[LINK]
 
-## Commands
+You're encouraged to rehost the bot and modify it to your needs.
+
 ## Modification and development
-This project is licensed under the Simplified BSD license. If modified and
-publicly re-released, I ask that you change the name to avoid confusion.
-
-A simple overview of the project files is as follows:
+Source overview:
 
 <table style="width:100%">
 
@@ -90,10 +87,19 @@ the commands.</td>
 </tr>
 
 <tr>
+<th>Related file</th>
+<th>Function</th>
+</tr>
+
+<tr>
 <td><code>test.py</code></td>
-<td>Hypothesis and Pytest tests, mostly focusing on the lexing / parsing /
-generation stages.</td>
+<td>Tests, mostly focusing on the lexer/parser/generator. Run with pytest.</td>
+<tr>
+
+<tr>
+<td><code>utils.py</code></td>
+<td>Related utilities to debug the lexer and to generate the command table for the README.</td>
 <tr>
 </table> 
 
-
+Code is under the BSD simplified licence. See [LICENCE.txt](LICENCE.txt).
