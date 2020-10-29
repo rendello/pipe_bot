@@ -26,15 +26,15 @@ async def grab_message(ctx, identifier, expected_id_type: str):
     """ Grab a certain message, based on the parameters. """
     assert expected_id_type in ["message", "user"]
 
-    message = None
+    result_message = None
 
     if re.match(r"(\A\d{18}\Z)", identifier):
         # Text is a message or user ID
 
         if expected_id_type == "message":
-            async for message in ctx.channel.history(limit=1000):
+            async for message in ctx.channel.history(limit=500):
                 if identifier == str(message.id):
-                    message = message
+                    result_message = message
                     break
         elif expected_id_type == "user":
             # If the person calling is looking for their own last message,
@@ -48,19 +48,19 @@ async def grab_message(ctx, identifier, expected_id_type: str):
                         calling_message_found = True
                         continue
                     else:
-                        message = message
+                        result_message = message
                         break
     elif identifier.strip() == "":
         # Grab message directly before user's, regardless of jumps in channel history.
         history = await ctx.channel.history(limit=10).flatten()
         for i, message in enumerate(history):
             if ctx.id == message.id:
-                message = history[i + 1]
+                result_message = history[i + 1]
                 break
     else:
         raise Exception
 
-    return message
+    return result_message
 
 
 async def change_status_task():
@@ -258,13 +258,19 @@ async def on_message(ctx):
 
         for last_macro in macro_last_pattern.findall(text):
             message = await grab_message(ctx, last_macro[1], "user")
-            message_text = await clean_up_mentions(message, message.content)
-            text = await safely_replace_substr(text, last_macro[0], message_text)
+            if message is None:
+                text = "`INFO: Message not found.`"
+            else:
+                message_text = await clean_up_mentions(message, message.content)
+                text = await safely_replace_substr(text, last_macro[0], message_text)
 
         for message_macro in macro_message_pattern.findall(text):
             message = await grab_message(ctx, message_macro[1], "message")
-            message_text = await clean_up_mentions(message, message.content)
-            text = await safely_replace_substr(text, message_macro[0], message_text)
+            if message is None:
+                text = "`INFO: Message not found.`"
+            else:
+                message_text = await clean_up_mentions(message, message.content)
+                text = await safely_replace_substr(text, message_macro[0], message_text)
 
         ##### Process pipe commands
         processed_text = await process_text(text)
