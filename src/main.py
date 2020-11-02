@@ -274,10 +274,16 @@ async def on_message(ctx):
 
         ##### Process pipe commands
         processed_text = await process_text(text)
-        clean_text = await clean_up_mentions(ctx, processed_text)
+        clean_processed_text = await clean_up_mentions(ctx, processed_text)
 
-        if clean_text != "":
-            await ctx.channel.send(clean_text)
+        if clean_processed_text != "":
+            max_response_length = min(2000, int(config["max_response_length"]))
+            response_length = len(clean_processed_text)
+
+            if response_length > max_response_length:
+                await ctx.channel.send(f"`INFO: Response to long. {response_length}/{max_response_length}`")
+            else:
+                await ctx.channel.send(clean_processed_text)
         else:
             await ctx.channel.send(
                 "`INFO: Cannot send an empty message. This often occurs when using $LAST on an embed.`"

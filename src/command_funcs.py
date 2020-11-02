@@ -127,7 +127,7 @@ async def clap(text, args):
     else:
         clap_str = "👏"
 
-    words = text.split()
+    words = text.split(" ")
     clappy_text = f" {clap_str} ".join(words)
 
     return clappy_text
