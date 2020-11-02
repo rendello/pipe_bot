@@ -8,8 +8,6 @@ from typing import List, Tuple, Sequence, Optional, Union
 from copy import copy
 import re
 
-from colorama import Fore, Back, Style
-
 import commands
 
 ##### GLOBAL STUFF
@@ -107,34 +105,6 @@ async def tokenize(text) -> List[Token]:
 
     await token_verify(tokens)
     return tokens
-
-
-async def t_print(tokens: Sequence[Token], show_key=False) -> None:
-    """ Prints arbritrary tokens with unique colors. """
-
-    foreground = (Fore.RED, Fore.GREEN, Fore.BLUE, Fore.YELLOW, Fore.CYAN,
-        Fore.MAGENTA, Fore.WHITE)
-    style = Style.BRIGHT, Style.NORMAL, Style.DIM
-
-    color_map = {}
-
-    for i, (token_type, _) in enumerate(TOKENS):
-        # (Jumps through foreground colors, then loops back and uses second
-        # style, et cetera. Enable show_key for visualization.)
-        color_map[token_type] = (
-            foreground[i % len(foreground)]
-            + style[int(i / len(foreground)) % len(style)]
-        )
-        if show_key:
-            print(color_map[token_type] + token_type + Style.RESET_ALL)
-
-    for token in tokens:
-        if token.type_ == "WHITESPACE":
-            color = Back.GREEN
-        else:
-            color = color_map[token.type_]
-        print(color + token.value + Style.RESET_ALL, end="")
-    print()
 
 
 ##### PARSER
