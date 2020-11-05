@@ -45,7 +45,7 @@ class Token:
     char_index: int = 0
 
 
-async def token_verify(tokens: List[Token]):
+async def brace_token_verify(tokens: List[Token]):
     brace_value = 0
 
     for token in tokens:
@@ -103,7 +103,7 @@ async def tokenize(text) -> List[Token]:
                 line_start = char_index
             column = char_index - line_start + 1
 
-    await token_verify(tokens)
+    await brace_token_verify(tokens)
     return tokens
 
 
@@ -157,7 +157,7 @@ class Parser:
 
         return (True in results)
 
-    async def consume(self, expected_type: str) -> Token:
+    async def consume(self, expected_type: Union[str, List[str]]) -> Token:
         if await self.peek(expected_type):
             # (Update index before returning, but use original for return.)
             self.index += 1
@@ -225,7 +225,7 @@ class Parser:
         return commands
 
     async def parse(self) -> Group:
-        content: List[Union[Command,str]] = []
+        content: List[Union[Group,str]] = []
         commands: List[Command] = []
 
         if self.tokens == []:
@@ -246,7 +246,7 @@ class Parser:
         return Group(content, commands)
 
 
-async def toAST(text) -> str:
+async def toAST(text) -> Group:
     tokens = await tokenize(text)
     return await Parser(tokens).parse()
 
@@ -271,7 +271,7 @@ async def generate(group: Group) -> str:
 
                 # (Combine all strings if no Groups are left)
                 if all(isinstance(item, str) for item in new_group.content):
-                    new_group.content = [str().join(new_group.content)]
+                    new_group.content = [str().join(new_group.content)] # type: ignore
 
             elif len(group.content) == 1:  # (is lone str)
                 text = c.strip()
