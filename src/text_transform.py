@@ -10,8 +10,14 @@ import re
 
 import commands
 
-##### GLOBAL STUFF
 
+class PipeBotError(Exception):
+    """ Any Pipebot (lexing, parsing, generation) error will directly raise
+    this with a custom message. """
+    pass
+
+
+### TOKENS ################################################################
 # A list of tokens is created with patterns to match on. All command aliases
 # are combined into a big regex to match on.
 _ = [
@@ -28,14 +34,7 @@ _ = [
 TOKENS = [(t[0],re.compile(t[1], re.IGNORECASE)) for t in _]
 
 
-##### EXCEPTION
-class PipeBotError(Exception):
-    """ Any Pipebot (lexing, parsing, generation) error will directly raise
-    this with a custom message. """
-    pass
-
-
-##### TOKENIZER
+### TOKENIZER #############################################################
 @dataclass
 class Token:
     type_: str
@@ -107,8 +106,7 @@ async def tokenize(text) -> List[Token]:
     return tokens
 
 
-##### PARSER
-
+### PARSER ################################################################
 @dataclass
 class Command:
     alias: str
@@ -251,8 +249,7 @@ async def toAST(text) -> Group:
     return await Parser(tokens).parse()
 
 
-##### GENERATOR
-
+### GENERATOR #############################################################
 async def generate(group: Group) -> str:
     """ Recursively generates text from the AST. """
 

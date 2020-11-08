@@ -108,7 +108,7 @@ async def clean_up_mentions(msg, text):
     return text
 
 
-##### User help data
+### USER HELP DATA ########################################################
 basic_description = """
 pipe|bot runs text through commands and posts the results. Run a command by \
 appending it to your message with the pipe character, « | ».
@@ -191,8 +191,7 @@ for alias in commands.all_aliases:
         color=0xFCF169,
     )
 
-
-##### Compiled regexes.
+### COMPILED REGEXES ######################################################
 # "|zalgo", "| mock"; Not "| randomtext"
 command_pattern = re.compile(commands.aliases_pattern_with_pipe)
 
@@ -217,8 +216,7 @@ macro_message_pattern = re.compile(
     r"(?:[^\\\w]|^)(\$MESSAGE\s+(?:https://discord.com/channels/\d{18}/\d{18}/)?(\d{18}))"
 )
 
-
-##### Bot callbacks.
+### BOT CALLBACKS #########################################################
 client = discord.Client()
 
 
@@ -302,6 +300,7 @@ async def on_message(ctx):
             await ctx.channel.send(embed=help_embeds["basics"])
 
 
+### BOT STARTUP ###########################################################
 if __name__ == "__main__":
 
     # (Platform agnostic config file path.)

@@ -8,8 +8,7 @@ import re
 import base64
 
 
-##### Helper functions
-
+### MISC. UTILITY FUNCTIONS ###############################################
 async def char_translate(text, chars, mapped_chars):
     translations = dict(zip(chars, mapped_chars))
 
@@ -37,8 +36,7 @@ async def get_seperator(args: List[str]) -> str:
         seperator = args[0]
     return seperator
 
-
-##### Callbacks
+### CALLBACKS #############################################################
 # Every command callback should:
 #   - Be asyncronous
 #   - Accept two arguments:

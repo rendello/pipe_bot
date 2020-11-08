@@ -11,7 +11,7 @@ from text_transform import process_text
 from main import macro_message_pattern, macro_last_pattern
 
 
-
+### REGULAR TESTS #########################################################
 def test_macro_last_pattern():
     empty_match_examples = [
         "Hello world",
@@ -91,6 +91,7 @@ async def test_process_text():
             assert isinstance(processed, str)
 
 
+### HYPOTHESIS TESTS ######################################################
 @given(text())
 @settings(max_examples=50_000, deadline=1000)
 def test_process_text_hyp(s):

@@ -3,6 +3,7 @@
 from typing import List
 import command_funcs as cf
 
+### TEXT COMMANDS #########################################################
 # Due to their inherent structure, commands can't be easily organized in any
 # given way. The existence of multiple aliases per command makes things messy.
 # As such, they are stored in this flat dictionary for ease of creation, and
@@ -251,7 +252,7 @@ text_commands = [
     },
 ]
 
-
+### USEFUL COMMAND GROUPINGS ##############################################
 # Map of aliases to their respective command dicts.
 alias_map = {alias: tc for tc in text_commands for alias in tc['aliases']}
 
