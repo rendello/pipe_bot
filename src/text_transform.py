@@ -156,6 +156,8 @@ class Parser:
         return (True in results)
 
     async def consume(self, expected_type: Union[str, List[str]]) -> Token:
+        """ Moves index forward and returns the token, if it matches an
+        expected type. """
         if await self.peek(expected_type):
             # (Update index before returning, but use original for return.)
             self.index += 1

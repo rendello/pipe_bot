@@ -11,7 +11,6 @@ import commands
 from text_transform import process_text
 import appdirs
 
-
 async def safely_replace_substr(text, substr, new_substr):
     """ Replace substr with a safely escaped new_substr. """
     dangerous_chars = r"\{}|,"
@@ -93,6 +92,8 @@ async def change_status_task():
 
 
 async def clean_up_mentions(msg, text):
+    """ Replace mentions with a non-pingning text equivelent. """
+
     for user in msg.mentions:
         text = text.replace(f"<@{user.id}>", f"@\u200b{user.display_name}")
         text = text.replace(
@@ -178,11 +179,21 @@ help_embeds["unknown"] = discord.Embed(
     title="**Unknown Argument**", description=unknown_description, color=0xFCF169
 )
 
+##### Create help decription embeds for each command.
+# Note: To generate each command's example output we have to run the command
+# callback. Since the callbacks are asyncronous, they must be run with
+# `async.run()`. `discord.Client()` expects to get the default inactive loop
+# and start using that, but `asyncio.run()` completely deletes the default
+# loop, and the discord code fails. Hence why we save and reset the event loop
+# here.
+old_loop = asyncio.get_event_loop()
 for alias in commands.all_aliases:
     command = commands.alias_map[alias]
+    example = asyncio.run(process_text(command['example']))
+
     command_description = (
         f"{command['description']}\n\n**Example:**\n"
-        + f"{command['example']['input']}\n>> {command['example']['output']}"
+        + f"{command['example']}\n{example}"
     )
 
     help_embeds[alias] = discord.Embed(
@@ -190,6 +201,7 @@ for alias in commands.all_aliases:
         description=command_description,
         color=0xFCF169,
     )
+asyncio.set_event_loop(old_loop)
 
 ### COMPILED REGEXES ######################################################
 # "|zalgo", "| mock"; Not "| randomtext"

@@ -23,232 +23,196 @@ text_commands = [
         "callback": cf.uppercase,
         "category": "basic",
         "description": "Uppercase",
-        "example": {
-            "input": "Hello, world! | upper",
-            "output": "HELLO, WORLD!",
-        },
+        "example": "Hello, world! | upper"
     },
     {
         "aliases": ["lowercase", "lower"],
         "callback": cf.lowercase,
         "category": "basic",
         "description": "Lowercase",
-        "example": {
-            "input": "Hello, WORLD! | lower",
-            "output": "hello, world!",
-        },
+        "example": "Hello, WORLD! | lower"
     },
     {
         "aliases": ["swapcase", "swap case", "swap"],
         "callback": cf.swapcase,
         "category": "basic",
         "description": "Swapped case per letter",
-        "example": {
-            "input": "Hello, WORLD! | swapcase",
-            "output": "hELLO, world!",
-        },
+        "example": "Hello, WORLD! | swapcase"
     },
     {
         "aliases": ["clap", "clapback"],
         "callback": cf.clap,
         "category": "misc",
         "description": "Emojis between words (default 👏)",
-        "example": {
-            "input": "you are valid and so is this communication style | clap",
-            "output": "YOU 👏 ARE 👏 VALID 👏 AND 👏 SO 👏 IS 👏 THIS 👏 COMMUNICATION 👏 STYLE",
-        },
+        "example": "you are valid and so is this communication style | clap"
     },
     {
         "aliases": ["mock", "spongebob"],
         "callback": cf.mock,
         "category": "misc",
         "description": "Random upper/lowercase",
-        "example": {
-            "input": "This is a good thing. | mock",
-            "output": "ThiS iS a GooD tHinG.",
-        },
+        "example": "This is a good thing. | mock"
     },
     {
         "aliases": ["zalgo", "spooky"],
         "callback": cf.zalgo,
         "category": "misc",
         "description": "Spooky zalgo text",
-        "example": {"input": "todo", "output": "todo",},
+        "example": "He comes | zalgo"
     },
     {
         "aliases": ["scramble"],
         "callback": cf.anagram,
         "category": "misc",
         "description": "Scrambled characters",
-        "example": {"input": "todo", "output": "todo",},
+        "example": "Uhhhh this is fine"
     },
     {
         "aliases": ["redact", "censor", "expunge"],
         "callback": cf.redact,
         "category": "substitution",
         "description": "Letters substituted for character (default █).",
-        "example": {
-            "input": "It's essential that you know [...]! | redact",
-            "output": "████ █████████ ████ ███ ████ [...]!",
-        },
+        "example": "It's essential that you know {this important thing|redact}!"
     },
     {
         "aliases": ["vaporwave", "vapour", "vapor", "vapourwave", "fullwidth", "full"],
         "callback": cf.vapourwave,
         "category": "substitution",
         "description": "CJK full width letters",
-        "example": {"input": "nice AESTHETICC | full", "output": "ｎｉｃｅ ＡＥＳＴＨＥＴＩＣＣ",},
+        "example": "nice AESTHETICC | vapourwave"
     },
     {
         "aliases": ["leet", "haxxor", "hacker", "1337"],
         "callback": cf.leet,
         "category": "substitution",
         "description": "Elite hacker text",
-        "example": {
-            "input": "Mess with the best, die like the rest. | leet",
-            "output": "M3$$ WI7H 7H3 83$7, DI3 1IK3 7H3 R3$7.",
-        },
+        "example": "Mess with the best, die like the rest. | leet"
     },
     {
         "aliases": ["blackletter", "gothic", "fraktur", "old"],
         "callback": cf.light_blackletter,
         "category": "substitution",
         "description": "Old timey blackletter",
-        "example": {
-            "input": "This is soooo legible | blackletter",
-            "output": "𝔗𝔥𝔦𝔰 𝔦𝔰 𝔰𝔬𝔬𝔬𝔬 𝔩𝔢𝔤𝔦𝔟𝔩𝔢",
-        },
+        "example": "This is soooo legible | blackletter"
     },
     {
         "aliases": ["serif", "cowboy", "western"],
         "callback": cf.serif,
         "category": "substitution",
         "description": "Unicode serif font",
-        "example": {
-            "input": "Howdy there, pardner. | serif",
-            "output": "𝐇𝐨𝐰𝐝𝐲 𝐭𝐡𝐞𝐫𝐞, 𝐩𝐚𝐫𝐝𝐧𝐞𝐫.",
-        },
+        "example": "Howdy there, pardner. | serif"
     },
     {
-        "aliases": ["upsidedown", "upside-down", "upside_down", "australia", "flip", "flipped"],
+        "aliases": ["upside-down", "upsidedown", "upside_down", "australia", "flip", "flipped"],
         "callback": cf.upside_down,
         "category": "substitution",
         "description": "Unicode upside-down font",
-        "example": {
-            "input": "I love living in Australia | upside-down",
-            "output": "I loʌǝ lᴉʌᴉuƃ ᴉu ∀nsʇɹɐlᴉɐ",
-        },
+        "example": "I love living in Australia | upside-down"
     },
     {
         "aliases": ["md5", "hash"],
         "callback": cf.md5,
         "category": "cyber",
         "description": "MD5 hash",
-        "example": {
-            "input": "12345goodPa$$word | md5",
-            "output": "b735c2f4ffa92fd7ed887bc423a7b3fd",
-        },
+        "example": "hunter2 | md5"
     },
     {
         "aliases": ["sha256"],
         "callback": cf.sha256,
         "category": "cyber",
         "description": "SHA256 hash",
-        "example": {
-            "input": "12345goodPa$$word | sha256",
-            "output": "4b89ce08630dc13be855658e9152d47dd1762800f7825d010018e02d3a67c6ae",
-        },
+        "example": "hunter2 | sha256"
     },
     {
         "aliases": ["hex", "hexidecimal"],
         "callback": cf.hexidecimal,
         "category": "cyber",
         "description": "Hexidecimal representation",
-        "example": {"input": "", "output": "",},
+        "example": "Hello world | hex"
     },
     {
         "aliases": ["from_hex", "from_hexidecimal", "fhex"],
         "callback": cf.from_hexidecimal,
         "category": "cyber",
         "description": "Text from hexidecimal",
-        "example": {"input": "", "output": "",},
+        "example": ""
     },
     {
         "aliases": ["binary", "bin"],
         "callback": cf.binary,
         "category": "cyber",
         "description": "Binary representation",
-        "example": {"input": "", "output": "",},
+        "example": "Hello world | bin"
     },
     {
         "aliases": ["base64","b64","base_64"],
         "callback": cf.to_base64,
         "category": "cyber",
         "description": "Base64 encoded",
-        "example": {"input": "", "output": "",},
+        "example": "Hello world | base64"
     },
     {
         "aliases": ["from_base64","from_b64", "fb64"],
         "callback": cf.from_base64,
         "category": "cyber",
         "description": "Text from base 64",
-        "example": {"input": "", "output": "",},
+        "example": ""
     },
     {
         "aliases": ["bold", "embolden"],
         "callback": cf.bold,
         "category": "markdown",
         "description": "Bold",
-        "example": {"input": "Hello", "output": "**Hello**",},
+        "example": "This is {bold|bold}"
     },
     {
         "aliases": ["italic", "italics", "italicize", "italicise"],
         "callback": cf.italic,
         "category": "markdown",
         "description": "Italics",
-        "example": {"input": "Hello", "output": "*Hello*",},
+        "example": "Wow, look at me | italics"
     },
     {
         "aliases": ["underline"],
         "callback": cf.underline,
         "category": "markdown",
         "description": "Underline",
-        "example": {"input": "Hello", "output": "__Hello__",},
+        "example": "This has a line underneath it | underline"
     },
     {
         "aliases": ["spoiler", "spoil", "spoilers", "spoilerz"],
         "callback": cf.spoiler,
         "category": "markdown",
         "description": "Spoiler tag",
-        "example": {"input": "Clark Kent is Superman", "output": "||Clark Kent is Superman||",},
+        "example": "Clark Kent is Superman | spoiler"
     },
     {
         "aliases": ["code"],
         "callback": cf.code,
         "category": "markdown",
         "description": "Inline code tag",
-        "example": {"input": "I64 i = 0", "output": "`I64 i = 0`",},
+        "example": "I64 i = 0 | code"
     },
     {
         "aliases": ["codeblock", "blockcode"],
         "callback": cf.codeblock,
         "category": "markdown",
         "description": "Code block",
-        "example": {"input": "I64 i = 0;", "output": "```\nI64 i = 0\n```",},
+        "example": "I64 i = 0; | codeblock",
     },
     {
         "aliases": ["blockquote", "quote", "quotation"],
         "callback": cf.blockquote,
         "category": "markdown",
         "description": "Block quote",
-        "example": {"input": "Hello", "output": "> Hello",},
+        "example": "Hello | blockquote"
     },
     {
         "aliases": ["uwu", "owo"],
         "callback": cf.uwu,
         "category": "misc",
         "description": "Cursed UwU text",
-        "example": {"input": "Hello", "output": "> Hewwo",},
+        "example": "Hello world | uwu"
     },
 ]
 
