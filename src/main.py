@@ -225,7 +225,7 @@ macro_last_pattern = re.compile(
 # Group 0: Whole match, whitespace stripped. For text replacement.
 # Group 1: The message ID. Won't match if it doesn't exist.
 macro_message_pattern = re.compile(
-    r"(?:[^\\\w]|^)(\$MESSAGE\s+(?:https://discord.com/channels/\d{18}/\d{18}/)?(\d{18}))"
+    r"(?:[^\\\w]|^)(\$MESSAGE\s+(?:https://discord\.com/channels/\d{18}/\d{18}/)?(\d{18}))"
 )
 
 ### BOT CALLBACKS #########################################################

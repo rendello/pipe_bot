@@ -1,6 +1,7 @@
 #!/usr/bin/python3.8
 
 from __future__ import annotations
+
 # ^ Allows classes to contain themselves
 
 from dataclasses import dataclass
@@ -14,6 +15,7 @@ import commands
 class PipeBotError(Exception):
     """ Any Pipebot (lexing, parsing, generation) error will directly raise
     this with a custom message. """
+
     pass
 
 
@@ -21,7 +23,7 @@ class PipeBotError(Exception):
 # A list of tokens is created with patterns to match on. All command aliases
 # are combined into a big regex to match on.
 _ = [
-    ("TEXT", r'\\(\n|.)'), # Escaped char.
+    ("TEXT", r"\\(\n|.)"),  # Escaped char.
     ("PIPE", r"(\|)"),
     ("COMMA", "(,)"),
     ("BRACE_OPEN", "({)"),
@@ -31,7 +33,7 @@ _ = [
     ("COMMAND", commands.aliases_pattern),
     ("TEXT", r"(\S)"),
 ]
-TOKENS = [(t[0],re.compile(t[1], re.IGNORECASE)) for t in _]
+TOKENS = [(t[0], re.compile(t[1], re.IGNORECASE)) for t in _]
 
 
 ### TOKENIZER #############################################################
@@ -120,7 +122,8 @@ class Group:
     generation stage and combined with the text. The commands will be run in
     order on the entire unified text.
     """
-    content: List[Union[str,Group]]
+
+    content: List[Union[str, Group]]
     commands: List[Command]
 
 
@@ -150,10 +153,12 @@ class Parser:
             elif expected_type == "ANY":
                 results.append(True)
             else:
-                assert any(expected_type in t for t in TOKENS), "expected_type doesn't exist."
+                assert any(
+                    expected_type in t for t in TOKENS
+                ), "expected_type doesn't exist."
                 results.append(self.tokens[self.index + offset].type_ == expected_type)
 
-        return (True in results)
+        return True in results
 
     async def consume(self, expected_type: Union[str, List[str]]) -> Token:
         """ Moves index forward and returns the token, if it matches an
@@ -164,17 +169,21 @@ class Parser:
             return self.tokens[self.index - 1]
         else:
             t = self.tokens[self.index]
-            raise PipeBotError(f"\n{t.line}, {t.column}: Expected {expected_type}, got {t.type_}")
+            raise PipeBotError(
+                f"\n{t.line}, {t.column}: Expected {expected_type}, got {t.type_}"
+            )
 
     async def consume_space(self) -> None:
         """ Consumes whitespace and newlines until none left. """
 
-        while await self.peek(["WHITESPACE","NEWLINE"]):
+        while await self.peek(["WHITESPACE", "NEWLINE"]):
             await self.consume(["WHITESPACE", "NEWLINE"])
 
-    async def parse_text(self, break_chars=["BRACE_OPEN", "BRACE_CLOSED", "PIPE"]) -> str:
+    async def parse_text(
+        self, break_tokens=["BRACE_OPEN", "BRACE_CLOSED", "PIPE"]
+    ) -> str:
         text = ""
-        while await self.peek("ANY") and not await self.peek(break_chars):
+        while await self.peek("ANY") and not await self.peek(break_tokens):
             text += (await self.consume("ANY")).value
         return text
 
@@ -184,7 +193,11 @@ class Parser:
         while True:
             await self.consume_space()
             if await self.peek("ANY"):
-                arguments.append(await self.parse_text(break_chars=["BRACE_OPEN", "BRACE_CLOSED", "PIPE", "COMMA"]))
+                arguments.append(
+                    await self.parse_text(
+                        break_tokens=["BRACE_OPEN", "BRACE_CLOSED", "PIPE", "COMMA"]
+                    )
+                )
 
                 if await self.peek("COMMA"):
                     await self.consume("COMMA")
@@ -225,13 +238,13 @@ class Parser:
         return commands
 
     async def parse(self) -> Group:
-        content: List[Union[Group,str]] = []
+        content: List[Union[Group, str]] = []
         commands: List[Command] = []
 
         if self.tokens == []:
             return Group([""], [])
 
-        while (self.index < len(self.tokens)):
+        while self.index < len(self.tokens):
             if await self.peek("PIPE"):
                 commands = await self.parse_commands()
             elif await self.peek("BRACE_OPEN"):
@@ -270,12 +283,14 @@ async def generate(group: Group) -> str:
 
                 # (Combine all strings if no Groups are left)
                 if all(isinstance(item, str) for item in new_group.content):
-                    new_group.content = [str().join(new_group.content)] # type: ignore
+                    new_group.content = [str().join(new_group.content)]  # type: ignore
 
             elif len(group.content) == 1:  # (is lone str)
                 text = c.strip()
                 for command in group.commands:
-                    text = await commands.alias_map[command.alias.lower()]["callback"](text, command.arguments)
+                    text = await commands.alias_map[command.alias.lower()]["callback"](
+                        text, command.arguments
+                    )
                 return text
 
         group = new_group
