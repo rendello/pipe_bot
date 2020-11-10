@@ -213,7 +213,7 @@ command_pattern = re.compile(commands.aliases_pattern_with_pipe)
 #
 # Group 0: Whole match, whitespace stripped. For text replacement.
 # Group 1: The user ID. May be empty.
-macro_last_pattern = re.compile(
+macro_LAST_pattern = re.compile(
     r"(?:[^\\\w]|^)(\$LAST(?:\s+<@(?:!)?)?(?:\s*(\d{18})(?:>)?)?)"
 )
 
@@ -224,7 +224,7 @@ macro_last_pattern = re.compile(
 #
 # Group 0: Whole match, whitespace stripped. For text replacement.
 # Group 1: The message ID. Won't match if it doesn't exist.
-macro_message_pattern = re.compile(
+macro_MESSAGE_pattern = re.compile(
     r"(?:[^\\\w]|^)(\$MESSAGE\s+(?:https://discord\.com/channels/\d{18}/\d{18}/)?(\d{18}))"
 )
 
@@ -247,8 +247,8 @@ async def on_message(ctx):
 
     elif not (
         re.search(command_pattern, text) is None
-        and re.search(macro_message_pattern, text) is None
-        and re.search(macro_last_pattern, text) is None
+        and re.search(macro_MESSAGE_pattern, text) is None
+        and re.search(macro_LAST_pattern, text) is None
     ):
         # (At least one pipe+command or macro has been found.)
 
@@ -266,21 +266,32 @@ async def on_message(ctx):
         if text.startswith("|"):
             text = "$LAST" + text
 
-        for last_macro in macro_last_pattern.findall(text):
-            message = await grab_message(ctx, last_macro[1], "user")
-            if message is None:
-                text = "`INFO: Message not found.`"
-            else:
-                message_text = await clean_up_mentions(message, message.content)
-                text = await safely_replace_substr(text, last_macro[0], message_text)
+        LAST_macro_cache = {}
+        MESSAGE_macro_cache = {}
 
-        for message_macro in macro_message_pattern.findall(text):
-            message = await grab_message(ctx, message_macro[1], "message")
-            if message is None:
-                text = "`INFO: Message not found.`"
+        for LAST_macro in macro_LAST_pattern.findall(text):
+            if LAST_macro[1] in LAST_macro_cache.keys():
+                message_text = LAST_macro_cache[LAST_macro[1]]
             else:
-                message_text = await clean_up_mentions(message, message.content)
-                text = await safely_replace_substr(text, message_macro[0], message_text)
+                message = await grab_message(ctx, LAST_macro[1], "user")
+                if message is None:
+                    message_text = "`$LAST: Message not found.`"
+                else:
+                    message_text = await clean_up_mentions(message, message.content)
+                    LAST_macro_cache[LAST_macro[1]] = message_text
+            text = await safely_replace_substr(text, LAST_macro[0], message_text)
+
+        for MESSAGE_macro in macro_MESSAGE_pattern.findall(text):
+            if MESSAGE_macro[1] in MESSAGE_macro_cache.keys():
+                message_text = MESSAGE_macro_cache[MESSAGE_macro[1]]
+            else:
+                message = await grab_message(ctx, MESSAGE_macro[1], "message")
+                if message is None:
+                    message_text = "`$MESSAGE: Message not found.`"
+                else:
+                    message_text = await clean_up_mentions(message, message.content)
+                    MESSAGE_macro_cache[MESSAGE_macro[1]] = message_text
+            text = await safely_replace_substr(text, MESSAGE_macro[0], message_text)
 
         ##### Process pipe commands
         processed_text = await process_text(text)
