@@ -11,6 +11,7 @@ import commands
 from text_transform import process_text
 import appdirs
 
+
 async def safely_replace_substr(text, substr, new_substr):
     """ Replace substr with a safely escaped new_substr. """
     dangerous_chars = r"\{}|,"
@@ -183,7 +184,7 @@ help_embeds["unknown"] = discord.Embed(
 # Note: To generate each command's example output we have to run the command
 # callback. Since the callbacks are asyncronous, they must be run with
 # `async.run()`. `discord.Client()` expects to get the default inactive loop
-# and start using that, but `asyncio.run()` completely deletes the default
+# and starts using that, but `asyncio.run()` completely deletes the default
 # loop, and the discord code fails. Hence why we save and reset the event loop
 # here.
 old_loop = asyncio.get_event_loop()
@@ -192,8 +193,9 @@ for alias in commands.all_aliases:
     example = asyncio.run(process_text(command['example']))
 
     command_description = (
-        f"{command['description']}\n\n**Example:**\n"
-        + f"{command['example']}\n{example}"
+        f"{command['description']}\n\n"
+        + f"**Aliases:**\n {', '.join([a for a in command['aliases']])}\n\n"
+        + f"**Example:**\n{command['example']}\n{example}"
     )
 
     help_embeds[alias] = discord.Embed(
@@ -307,7 +309,7 @@ async def on_message(ctx):
                 await ctx.channel.send(clean_processed_text)
         else:
             await ctx.channel.send(
-                "`INFO: Cannot send an empty message. This often occurs when using $LAST on an embed.`"
+                "`INFO: Cannot send an empty message. This usually occurs when using $LAST on an embed.`"
             )
 
     ##### Help messages

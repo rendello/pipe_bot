@@ -44,7 +44,7 @@ text_commands = [
         "callback": cf.clap,
         "category": "misc",
         "description": "Emojis between words (default 👏)",
-        "example": "you are valid and so is this communication style | clap"
+        "example": "You are valid and so is this communication style | clap"
     },
     {
         "aliases": ["mock", "spongebob"],
@@ -135,7 +135,7 @@ text_commands = [
         "callback": cf.from_hexidecimal,
         "category": "cyber",
         "description": "Text from hexidecimal",
-        "example": ""
+        "example": "48 65 6c 6c 6f 2c 20 77 6f 72 6c 64 21 | from_hex"
     },
     {
         "aliases": ["binary", "bin"],
@@ -156,7 +156,7 @@ text_commands = [
         "callback": cf.from_base64,
         "category": "cyber",
         "description": "Text from base 64",
-        "example": ""
+        "example": "SGVsbG8sIHdvcmxkIQ== | from_base64"
     },
     {
         "aliases": ["bold", "embolden"],
@@ -213,6 +213,13 @@ text_commands = [
         "category": "misc",
         "description": "Cursed UwU text",
         "example": "Hello world | uwu"
+    },
+    {
+        "aliases": ["faux_cyrillic", "fake_cyrillic", "faux_russian", "fake_russian", "soviet"],
+        "callback": cf.faux_cyrillic,
+        "category": "substitution",
+        "description": "Fake Cyrillic transliteration",
+        "example": "This is valid Russian, right guys? | faux_cyrillic"
     },
 ]
 

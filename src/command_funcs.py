@@ -279,3 +279,33 @@ async def uwu(text, args):
     for r in replacements:
         text = text.replace(r[0], r[1])
     return text
+
+
+async def faux_cyrillic(text, args):
+    transliterations = [
+        (["BI", "BL"], ["Ы"]),
+        (["LO", "IO"], ["Ю"]),
+        (["B"], ["Ь","В"]),
+        (["G"], ["Б"]),
+        (["R"], ["Я"]),
+        (["T"], ["Г"]),
+        (["A"], ["Д"]),
+        (["X"], ["Ж", "Х"]),
+        (["E"], ["З", "Э"]),
+        (["N"], ["Й", "И", "Л", "П"]),
+        (["K"], ["К"]),
+        (["H"], ["Н"]),
+        (["P"], ["Р"]),
+        (["C"], ["С"]),
+        (["Y"], ["У", "Ч"]),
+        (["O", "Q"], ["Ф", "Φ"]),
+        (["U"], ["Ц", "Џ"]),
+        (["W"], ["Ш", "Щ"]),
+        (["F"], ["Ғ"])
+    ]
+    text = text.upper()
+    for t in transliterations:
+        for latin_str in t[0]:
+            for occurence in range(0, text.count(latin_str)):
+                text = text.replace(latin_str, random.choice(t[1]), 1)
+    return text
