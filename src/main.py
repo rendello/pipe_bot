@@ -341,9 +341,15 @@ if __name__ == "__main__":
         if "y" in input("Create one? [y/n]: ").lower():
             config = {}
             config["key"] = input("Discord bot key: ").strip()
-            config["max_response_length"] = input(
+            maxlen = input(
                 "Max response length (max 2000): "
             ).strip()
+            if isinstance(maxlen, int) and maxlen > 0 and maxlen < 2000:
+                config["max_response_length"] = maxlen
+            else:
+                print("Defaulting to 2000")
+                config["max_response_length"] = 2000
+                
 
             config_dir.mkdir(parents=True, exist_ok=True)
             with open(config_file, "w+") as f:

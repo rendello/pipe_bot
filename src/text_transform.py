@@ -291,6 +291,10 @@ async def generate(group: Group) -> str:
                     text = await commands.alias_map[command.alias.lower()]["callback"](
                         text, command.arguments
                     )
+                    # Prevent exponential string expansion (ie. with clap and/or $LAST)
+                    if len(text) > 3000:
+                        raise PipeBotError("Text result much too long for buffer.")
+
                 return text
 
         group = new_group
