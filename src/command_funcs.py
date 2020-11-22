@@ -27,6 +27,7 @@ async def get_hash(hash_type, text):
     h.update(text.encode())
     return h.hexdigest()
 
+
 async def get_seperator(args: List[str]) -> str:
     if args == [] or args[0].lower() == "space":
         seperator = " "
@@ -35,6 +36,7 @@ async def get_seperator(args: List[str]) -> str:
     else:
         seperator = args[0]
     return seperator
+
 
 ### CALLBACKS #############################################################
 # Every command callback should:
@@ -75,6 +77,13 @@ async def vapourwave(text, args):
     full = "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ"
 
     return await char_translate(text, standard, full)
+
+
+async def double_struck(text, args):
+    standard =   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    blackboard = "𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡"
+
+    return await char_translate(text, standard, blackboard)
 
 
 async def leet(text, args):

@@ -82,6 +82,13 @@ text_commands = [
         "example": "nice AESTHETICC | vapourwave"
     },
     {
+        "aliases": ["doublestruck", "double_struck", "blackboard"],
+        "callback": cf.double_struck,
+        "category": "substitution",
+        "description": "Double-struck math letters",
+        "example": "Hello, World! 1, 2, 3! | blackboard"
+    },
+    {
         "aliases": ["leet", "haxxor", "hacker", "1337"],
         "callback": cf.leet,
         "category": "substitution",
