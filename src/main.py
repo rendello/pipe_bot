@@ -304,7 +304,7 @@ async def on_message(ctx):
             response_length = len(clean_processed_text)
 
             if response_length > max_response_length:
-                await ctx.channel.send(f"`INFO: Response to long. {response_length}/{max_response_length}`")
+                await ctx.channel.send(f"`INFO: Response too long. {response_length}/{max_response_length}`")
             else:
                 await ctx.channel.send(clean_processed_text)
         else:
@@ -313,7 +313,6 @@ async def on_message(ctx):
             )
 
     ##### Help messages
-
     elif text.lower().strip().startswith(f"<@!{client.user.id}>"):
         try:
             argument = text.lower().split()[1].strip()
