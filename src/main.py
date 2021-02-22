@@ -3,6 +3,7 @@
 import re
 from pathlib import Path
 import asyncio
+import platform
 
 import discord
 import toml
@@ -10,6 +11,10 @@ import toml
 import commands
 from text_transform import process_text
 import appdirs
+
+if platform.system() == "OpenBSD":
+    import openbsd
+
 
 
 async def safely_replace_substr(text, substr, new_substr):
@@ -333,7 +338,18 @@ if __name__ == "__main__":
 
     try:
         with open(config_file, "r") as f:
+            if platform.system() == "OpenBSD":
+                openbsd.pledge("stdio inet dns prot_exec unveil rpath")
+                openbsd.unveil("/usr/local/lib/python3.8/", "r")
+                openbsd.unveil("/etc/ssl", "r")
+                openbsd.unveil(config_file.as_posix(), "r")
+
             config = toml.load(f)
+
+        if platform.system() == "OpenBSD":
+            openbsd.unveil(config_file.as_posix(), "")
+            openbsd.pledge("stdio inet dns prot_exec rpath")
+        
         client.run(config["key"])
 
     except FileNotFoundError:
