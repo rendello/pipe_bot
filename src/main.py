@@ -1,18 +1,18 @@
+# SPDX-License-Identifier: BSD-2-Clause
+
 import re
-from pathlib import Path
+import pathlib
 import asyncio
 import platform
 
 import discord
 import toml
-
-import commands
-from text_transform import process_text
 import appdirs
-
 if platform.system() == "OpenBSD":
     import openbsd
 
+import commands
+from text_transform import process_text
 
 
 async def safely_replace_substr(text, substr, new_substr):
@@ -334,7 +334,7 @@ async def on_message(ctx):
 if __name__ == "__main__":
 
     # (Platform agnostic config file path.)
-    config_dir = Path(appdirs.user_config_dir("pipebot"))
+    config_dir = pathlib.Path(appdirs.user_config_dir("pipebot"))
     config_file = config_dir.joinpath("config.toml")
 
     try:

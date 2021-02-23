@@ -1,4 +1,4 @@
-#!/usr/bin/python3.8
+# SPDX-License-Identifier: BSD-2-Clause
 
 # A collection of utilities related to the program, but that don't need to be
 # included in its source code directly.

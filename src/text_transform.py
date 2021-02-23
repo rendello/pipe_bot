@@ -1,4 +1,4 @@
-#!/usr/bin/python3.8
+# SPDX-License-Identifier: BSD-2-Clause
 
 from __future__ import annotations
 
