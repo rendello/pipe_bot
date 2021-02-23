@@ -1,5 +1,3 @@
-#!/usr/bin/python3.8
-
 import re
 from pathlib import Path
 import asyncio
@@ -241,6 +239,9 @@ client = discord.Client()
 
 @client.event
 async def on_ready():
+    if platform.system() == "OpenBSD":
+        openbsd.pledge("stdio inet dns prot_exec")
+
     await client.loop.create_task(change_status_task())
 
 
