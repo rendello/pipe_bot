@@ -338,16 +338,11 @@ if __name__ == "__main__":
 
     try:
         with open(config_file, "r") as f:
-            if platform.system() == "OpenBSD":
-                openbsd.pledge("stdio inet dns prot_exec unveil rpath")
-                openbsd.unveil("/usr/local/lib/python3.8/", "r")
-                openbsd.unveil("/etc/ssl", "r")
-                openbsd.unveil(config_file.as_posix(), "r")
-
             config = toml.load(f)
 
         if platform.system() == "OpenBSD":
-            openbsd.unveil(config_file.as_posix(), "")
+            openbsd.unveil("/etc/ssl", "r")
+            openbsd.unveil("/usr/local/lib/python3.8/", "r")
             openbsd.pledge("stdio inet dns prot_exec rpath")
         
         client.run(config["key"])
