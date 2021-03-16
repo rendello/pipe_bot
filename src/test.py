@@ -3,16 +3,15 @@
 import random
 
 import pytest
-from hypothesis import given, settings
-from hypothesis.strategies import text
+import hypothesis
 import asyncio
 
 from text_transform import process_text
-from main import macro_message_pattern, macro_last_pattern
+from main import macro_MESSAGE_pattern, macro_LAST_pattern
 
 
-### REGULAR TESTS #########################################################
-def test_macro_last_pattern():
+# ==============================================================================
+def test_macro_LAST_pattern():
     empty_match_examples = [
         "Hello world",
         "Hello world$LAST",
@@ -28,17 +27,17 @@ def test_macro_last_pattern():
     ]
 
     for ex in empty_match_examples:
-        assert macro_last_pattern.findall(ex) == []
+        assert macro_LAST_pattern.findall(ex) == []
 
     for ex in id_match_examples:
         assert all(
-            substr in macro_last_pattern.findall(ex)[0][0]
+            substr in macro_LAST_pattern.findall(ex)[0][0]
             for substr in ["$LAST", "0" * 18]
         )
-        assert macro_last_pattern.findall(ex)[0][1] == "0" * 18
+        assert macro_LAST_pattern.findall(ex)[0][1] == "0" * 18
 
 
-def test_macro_message_pattern():
+def test_macro_MESSAGE_pattern():
     empty_match_examples = [
         "Hello world",
         "Hello world$MESSAGE",
@@ -56,14 +55,14 @@ def test_macro_message_pattern():
     ]
 
     for ex in empty_match_examples:
-        assert macro_message_pattern.findall(ex) == []
+        assert macro_MESSAGE_pattern.findall(ex) == []
 
     for ex in id_match_examples:
         assert all(
-            substr in macro_message_pattern.findall(ex)[0][0]
+            substr in macro_MESSAGE_pattern.findall(ex)[0][0]
             for substr in ["$MESSAGE", "0" * 18]
         )
-        assert macro_message_pattern.findall(ex)[0][1] == "0" * 18
+        assert macro_MESSAGE_pattern.findall(ex)[0][1] == "0" * 18
 
 
 @pytest.mark.asyncio 
@@ -91,8 +90,10 @@ async def test_process_text():
             assert isinstance(processed, str)
 
 
-### HYPOTHESIS TESTS ######################################################
-@given(text())
-@settings(max_examples=50_000, deadline=1000)
+# Hypothesis ===================================================================
+@hypothesis.given(hypothesis.strategies.text())
+@hypothesis.settings(max_examples=1500, deadline=1000)
+@hypothesis.example("$MESSAGE 821233682379046943|clap \|\|")
+@hypothesis.example("$MESSAGE | clap ||")
 def test_process_text_hyp(s):
    assert isinstance(asyncio.run(process_text(s)), str)
