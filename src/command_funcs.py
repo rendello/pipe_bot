@@ -7,6 +7,80 @@ import hashlib
 import re
 import base64
 
+# Data #########################################################################
+morse_map = [
+    ("E̅E̅E̅E̅E̅E̅E̅E̅", "........"),
+    ("I̅N̅T̅", "..-.-"),
+    ("S̅O̅S̅", "...---..."),
+    ("A̅A̅", ".-.-"),
+    ("A̅R̅", ".-.-."),
+    ("A̅S̅", ".-..."),
+    ("B̅K̅", "-...-.-"),
+    ("C̅L̅", "-·-··-··"),
+    ("S̅N̅", "...-."),
+    ("B̅T̅", "-...-"),
+    ("C̅T̅", "-.-.-"),
+    ("D̅O̅", "-··---"),
+    ("K̅N̅", "-·--·"),
+    ("S̅K̅", "···-·-"),
+    ("A", ".-"),
+    ("B", "-..."),
+    ("C", "-.-."),
+    ("D", "-.."),
+    ("E", "."),
+    ("F", "..-."),
+    ("G", "--."),
+    ("H", "...."),
+    ("I", ".."),
+    ("J", ".---"),
+    ("K", "-.-"),
+    ("L", ".-.."),
+    ("M", "--"),
+    ("N", "-."),
+    ("O", "---"),
+    ("P", ".--."),
+    ("Q", "--.-"),
+    ("R", ".-."),
+    ("S", "..."),
+    ("T", "-"),
+    ("U", "..-"),
+    ("V", "...-"),
+    ("W", ".--"),
+    ("X", "-..-"),
+    ("Y", "-.--"),
+    ("Z", "--.."),
+    ("0", "-----"),
+    ("1", ".----"),
+    ("2", "..---"),
+    ("3", "...--"),
+    ("4", "....-"),
+    ("5", "....."),
+    ("6", "-...."),
+    ("7", "--..."),
+    ("8", "---.."),
+    ("9", "----."),
+    (".", ".-.-.-"),
+    (",", "--..--"),
+    ("?", "..--.."),
+    ("'", ".----."),
+    ("!", "-.-.--"),
+    ("/", "-..-."),
+    ("(", "-.--."),
+    (")", "-.--.-"),
+    ("&", ".-..."),
+    (":", "---..."),
+    (";", "-.-.-."),
+    ("=", "-...-"),
+    ("+", ".-.-."),
+    ("-", "-....-"),
+    ("_", "..--.-"),
+    ('"', ".-..-."),
+    ("$", "...-..-"),
+    ("@", ".--.-."),
+    ("¿", "..-.-"),
+    ("¡", "--...-"),
+    (" ", "/"),
+]
 
 ### MISC. UTILITY FUNCTIONS ###############################################
 async def char_translate(text, chars, mapped_chars):
@@ -318,3 +392,32 @@ async def faux_cyrillic(text, args):
             for occurence in range(0, text.count(latin_str)):
                 text = text.replace(latin_str, random.choice(t[1]), 1)
     return text
+
+
+async def to_morse(text, args):
+    text_index = 0
+    morse_text = ""
+
+    caps_text = text.upper()
+    while text_index <= len(caps_text):
+        for pattern, morse_pattern in morse_map:
+            if caps_text.startswith(pattern, text_index):
+                text_index += len(pattern) - 1
+                morse_text += morse_pattern + " "
+        else:
+            text_index += 1
+    return morse_text
+
+
+async def from_morse(text, args):
+    latin_text = ""
+    sections = text.split()
+    for section in sections:
+        for latin_pattern, morse_pattern in morse_map:
+            if section == morse_pattern:
+                latin_text += latin_pattern
+                break
+        else:
+            latin_text += "[?]"
+
+    return latin_text

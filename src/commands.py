@@ -228,6 +228,20 @@ text_commands = [
         "description": "Fake Cyrillic transliteration",
         "example": "This is valid Russian, right guys? | faux_cyrillic"
     },
+    {
+        "aliases": ["morse", "telegram", "telegraph"],
+        "callback": cf.to_morse,
+        "category": "substitution",
+        "description": "To Morse code.",
+        "example": "Hellp, world | morse"
+    },
+    {
+        "aliases": ["from_morse", "from_telegram", "from_telegraph"],
+        "callback": cf.from_morse,
+        "category": "substitution",
+        "description": "From Morse code.",
+        "example": "... . . | from_morse"
+    },
 ]
 
 ### USEFUL COMMAND GROUPINGS ##############################################
