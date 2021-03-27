@@ -219,7 +219,8 @@ command_pattern = re.compile(commands.aliases_pattern_with_pipe)
 # Group 0: Whole match, whitespace stripped. For text replacement.
 # Group 1: The user ID. May be empty.
 macro_LAST_pattern = re.compile(
-    r"(?:[^\\\w]|^)(\$LAST(?:\s+<@(?:!)?)?(?:\s*(\d{18})(?:>)?)?)"
+    r"(?:[^\\\w]|^)(\$LAST(?:\s+<@(?:!)?)?(?:\s*(\d{18})(?:>)?)?)",
+    re.IGNORECASE
 )
 
 # Matches the $MESSAGE macro in much in the same way as $LAST. Looks for
@@ -230,7 +231,8 @@ macro_LAST_pattern = re.compile(
 # Group 0: Whole match, whitespace stripped. For text replacement.
 # Group 1: The message ID. Won't match if it doesn't exist.
 macro_MESSAGE_pattern = re.compile(
-    r"(?:[^\\\w]|^)(\$MESSAGE\s+(?:https://discord\.com/channels/\d{18}/\d{18}/)?(\d{18}))"
+    r"(?:[^\\\w]|^)(\$MESSAGE\s+(?:https://discord\.com/channels/\d{18}/\d{18}/)?(\d{18}))",
+    re.IGNORECASE
 )
 
 ### BOT CALLBACKS #########################################################
