@@ -242,7 +242,6 @@ client = discord.Client()
 @client.event
 async def on_ready():
     if platform.system() == "OpenBSD":
-        openbsd.pledge("stdio inet dns prot_exec rpath unveil")
         openbsd.unveil("/etc/ssl/certs", "r")
         openbsd.unveil("/usr/local/lib/python3.8/", "r")
         openbsd.pledge("stdio inet dns prot_exec rpath")
