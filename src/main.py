@@ -242,7 +242,10 @@ client = discord.Client()
 @client.event
 async def on_ready():
     if platform.system() == "OpenBSD":
-        openbsd.pledge("stdio inet dns prot_exec")
+        openbsd.pledge("stdio inet dns prot_exec rpath")
+        openbsd.unveil("/etc/ssl/certs", "r")
+        openbsd.unveil("/usr/local/lib/python3.8/", "r")
+        openbsd.unveil("", "")
 
     await client.loop.create_task(change_status_task())
 
@@ -342,11 +345,6 @@ if __name__ == "__main__":
     try:
         with open(config_file, "r") as f:
             config = toml.load(f)
-
-        if platform.system() == "OpenBSD":
-            openbsd.unveil("/etc/ssl", "r")
-            openbsd.unveil("/usr/local/lib/python3.8/", "r")
-            openbsd.pledge("stdio inet dns prot_exec rpath")
         
         client.run(config["key"])
 
