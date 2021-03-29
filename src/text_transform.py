@@ -292,7 +292,10 @@ async def generate(group: Group) -> str:
                         text, command.arguments
                     )
                     # Prevent exponential string expansion (ie. with clap and/or $LAST)
-                    if len(text) > 3000:
+                    # Let it be longer than message limit, as a user might want
+                    # to chain commands where the final string is shorter, ie.
+                    # "|morse|morse|md5"
+                    if len(text) > 10_000:
                         raise PipeBotError("Text result much too long for buffer.")
 
                 return text
